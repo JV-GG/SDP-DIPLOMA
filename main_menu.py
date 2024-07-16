@@ -22,22 +22,22 @@ green = (0, 255, 0)
 red = (255, 0, 0)
 
 # Load font
-custom_font1 = pygame.font.Font('D:\OneDrive - Asia Pacific University\SEM 5SDP/SDP-DIPLOMA-/SDP/font/Minecraft.ttf', 40)
-custom_font1_small = pygame.font.Font('C:/Users/USER/Desktop/SDP/font/Minecraft.ttf', 37)
-custom_font_smallest = pygame.font.Font('C:/Users/USER/Desktop/SDP/font/Minecraft.ttf', 15)
-custom_font1_big = pygame.font.Font('C:/Users/USER/Desktop/SDP/font/Minecraft.ttf', 50)
-custom_font1_small1 = pygame.font.Font('C:/Users/USER/Desktop/SDP/font/Minecraft.ttf', 32)
-about_us_font = pygame.font.Font('C:/Users/USER/Desktop/SDP/font/Minecraft.ttf', 30)
-about_us_heading_font = pygame.font.Font('C:/Users/USER/Desktop/SDP/font/Minecraft.ttf', 60)
+custom_font1 = pygame.font.Font('SDP/font/Minecraft.ttf', 40)
+custom_font1_small = pygame.font.Font('SDP/font/Minecraft.ttf', 37)
+custom_font_smallest = pygame.font.Font('SDP/font/Minecraft.ttf', 15)
+custom_font1_big = pygame.font.Font('SDP/font/Minecraft.ttf', 50)
+custom_font1_small1 = pygame.font.Font('SDP/font/Minecraft.ttf', 32)
+about_us_font = pygame.font.Font('SDP/font/Minecraft.ttf', 30)
+about_us_heading_font = pygame.font.Font('SDP/font/Minecraft.ttf', 60)
 
 # Load button images
-login_button_image = pygame.image.load(r'C:\Users\USER\Desktop\SDP\jpg\main_menu_button.png')
-register_button_image = pygame.image.load(r'C:\Users\USER\Desktop\SDP\jpg\main_menu_button.png')
-back_button_path = 'C:/Users/USER/Desktop/SDP/jpg/back_button.png'
-quit_button_path = 'C:/Users/USER/Desktop/SDP/jpg/quit_button.png'
+login_button_image = pygame.image.load(r'SDP/jpg/main_menu_button.png')
+register_button_image = pygame.image.load(r'SDP/jpg/main_menu_button.png')
+back_button_path = 'SDP/jpg/back_button.png'
+quit_button_path = 'SDP/jpg/quit_button.png'
 
 # Load input images
-input_image_path = 'C:/Users/USER/Desktop/SDP/jpg/input.png'
+input_image_path = 'SDP/jpg/input.png'
 
 # Load button image and scale it
 button_image_orig = pygame.image.load(input_image_path).convert_alpha()
@@ -49,7 +49,7 @@ login_button_image = pygame.transform.scale(login_button_image, (200, 200))
 register_button_image = pygame.transform.scale(register_button_image, (200, 200))
 
 # Load menu image
-menu_image = pygame.image.load(r'C:\Users\USER\Desktop\SDP\jpg\menu2.png').convert_alpha()
+menu_image = pygame.image.load(r'SDP\jpg\menu2.png').convert_alpha()
 menu_image = pygame.transform.scale(menu_image, (screen_width, screen_height))
 menu_width = menu_image.get_width()
 
@@ -74,8 +74,8 @@ conn = pymysql.connect(
 my_cursor = conn.cursor()
 
 # Load eye image path
-eye_closed_image_path="C:/Users/USER/Desktop/SDP/jpg/password_off.png"
-eye_image_path="C:/Users/USER/Desktop/SDP/jpg/password_on.png"
+eye_closed_image_path="SDP/jpg/password_off.png"
+eye_image_path="SDP/jpg/password_on.png"
 
 # Scale images to fit the buttons
 input_image = pygame.image.load(input_image_path).convert_alpha()
@@ -490,7 +490,7 @@ def multi_text_input(inputs, input_image_path, eye_image_path, eye_closed_image_
                 pygame.draw.line(screen, (0, 0, 0), (cursor_x, cursor_top), (cursor_x, cursor_bottom), 2)
 
             #Draw forget password button
-            font_small = pygame.font.Font('C:/Users/USER/Desktop/SDP/font/Minecraft.ttf', 18) 
+            font_small = pygame.font.Font('SDP/font/Minecraft.ttf', 18) 
             screen.blit(quit_button_image, (screen_width - 220, screen_height - 60))   
             logout_button_rect = pygame.Rect(screen_width - 200, screen_height - 50, 150, 30)
             draw_text("Forget Password", font_small, black, logout_button_rect.centerx, logout_button_rect.centery)
@@ -587,11 +587,11 @@ def stage_select_menu(profile,id):
     message = ""
 
     # Load images and scale them
-    stage_image_orig = pygame.image.load('C:/Users/USER/Desktop/SDP/jpg/main_menu_button.png').convert_alpha()
+    stage_image_orig = pygame.image.load('SDP/jpg/main_menu_button.png').convert_alpha()
     stage_image_size = (150, 150)
     stage_image = pygame.transform.scale(stage_image_orig, stage_image_size)
 
-    stage_image_orig2 = pygame.image.load('C:/Users/USER/Desktop/SDP/jpg/stage_button2.png').convert_alpha()
+    stage_image_orig2 = pygame.image.load('SDP/jpg/stage_button2.png').convert_alpha()
     stage_image_size2 = (150, 150)
     stage_image2 = pygame.transform.scale(stage_image_orig2, stage_image_size2)
 
@@ -763,7 +763,7 @@ def start_menu(profile,id):
     
     # Define fonts
     #font_medium = pygame.font.Font(custom_font1_big, 52)
-    font_small = pygame.font.Font('C:/Users/USER/Desktop/SDP/font/Minecraft.ttf', 18)
+    font_small = pygame.font.Font('SDP/font/Minecraft.ttf', 18)
 
     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
     scroll = 0
@@ -1115,7 +1115,7 @@ def logo_menu():
         screen.blit(logo_image, ((screen_width - logo_image.get_width()) // 2, logo_y))
 
         # Render text using the function
-        render_text('C:/Users/USER/Desktop/SDP/font/Minecraft.ttf', "Click Here !", 20, screen_width // 2, screen_height - 50, pygame.Color('white'))
+        render_text('SDP/font/Minecraft.ttf', "Click Here !", 20, screen_width // 2, screen_height - 50, pygame.Color('white'))
         
         pygame.display.flip()
 
@@ -1127,7 +1127,7 @@ def profile_management(profile,id):
     scroll = 0
     
     # Define fonts
-    font_small = pygame.font.Font('C:/Users/USER/Desktop/SDP/font/Minecraft.ttf', 18)
+    font_small = pygame.font.Font('SDP/font/Minecraft.ttf', 18)
 
     # Fetch user data from the database
     query = "SELECT id, nickname, age, password FROM user WHERE email = %s"
@@ -1294,7 +1294,7 @@ def profile_management(profile,id):
         pygame.display.flip()
 
 # Start the logo menu loop
-logo_image = pygame.image.load('C:/Users/USER/Desktop/SDP/jpg/logo2.png').convert_alpha()
+logo_image = pygame.image.load('SDP/jpg/logo2.png').convert_alpha()
 logo_menu()
 
 # Close cursor and connection
