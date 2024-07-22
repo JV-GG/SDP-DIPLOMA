@@ -904,6 +904,105 @@ def start_menu(profile,id):
         
         pygame.display.flip()
 
+
+def start_menu_admin(profile,id):
+    
+    # Define fonts
+    #font_medium = pygame.font.Font(custom_font1_big, 52)
+    font_small = pygame.font.Font('font/Minecraft.ttf', 18)
+
+    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+    scroll = 0
+    running = True
+
+    message = ''
+
+    while running:
+        # Check for events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    mouse_pos = pygame.mouse.get_pos()
+                    # Check if buttons are clicked
+                    if start_button_rect.collidepoint(mouse_pos):
+                        print("Stage button clicked")
+                        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+                        stage_select_menu_admin(profile,id)
+                    elif profile_button_rect.collidepoint(mouse_pos):
+                        print("Profile button clicked")
+                        profile_management_admin(profile,id)
+                        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+                    elif savequit_button_rect.collidepoint(mouse_pos):
+                        print("Save & Quit button clicked")
+                        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+                        message = "Progress Saved, Ready to Quit the Game!!"
+                        message_color = green
+                        if message:
+                            message_display(message, 24, screen_width // 2, 900, message_color)
+                            pygame.display.flip
+                            time.sleep(1)
+                            
+                        pygame.quit()
+                        sys.exit()
+                        # Add code to show about us information
+                    elif logout_button_rect.collidepoint(mouse_pos) or (screen_width - 220 < mouse_pos[0] < screen_width - 220 + quit_button_size[0] and screen_height - 60 < mouse_pos[1] < screen_height - 60 + quit_button_size[1]):
+                        print("Log Out button clicked")
+                        message = "Logging out...."
+                        message_color = green
+                        if message:
+                            message_display(message, 24, screen_width // 2, 900, message_color)
+                            pygame.display.flip
+                            time.sleep(1)
+                        logo_menu() # Exit the menu and return to caller (log out)
+                    
+        scroll += 1   # Increase scroll speed for faster movement
+        if scroll > menu_width:
+            scroll = 0 
+
+        draw_menu(scroll)  
+
+        # Draw buttons
+        start_button_rect = input_image3.get_rect(center=(screen_width // 2, 270))
+        profile_button_rect = input_image3.get_rect(center=(screen_width // 2, 390))
+        savequit_button_rect = input_image3.get_rect(center=(screen_width // 2, 510))
+        logout_button_rect = pygame.Rect(screen_width - 200, screen_height - 50, 150, 30)
+        
+        # Blit input images for buttons
+        screen.blit(input_image3, start_button_rect.topleft)
+        screen.blit(input_image3, profile_button_rect.topleft)
+        screen.blit(input_image3, savequit_button_rect.topleft)
+        screen.blit(quit_button_image, (screen_width - 220, screen_height - 60))
+
+        # Draw text on buttons
+        draw_text("Stage", custom_font1_big, black, start_button_rect.centerx, start_button_rect.centery)
+        draw_text("Profile", custom_font1_big, black, profile_button_rect.centerx, profile_button_rect.centery)
+        draw_text("Save & Quit", custom_font1_big, black, savequit_button_rect.centerx, savequit_button_rect.centery)
+        draw_text("Log Out", font_small, black, logout_button_rect.centerx, logout_button_rect.centery)
+        
+        # Draw profile text with left alignment
+        profile_text_x = 20  # Left margin value
+        profile_text_y = screen_height - 60  # Bottom-left corner y-coordinate with a slight margin
+        screen.blit(input_image2, (profile_text_x, profile_text_y))
+        draw_text(f"Admin as: {profile}", font_small, black, profile_text_x + 30, profile_text_y + 20, align="left")
+        
+        # Display login message if any
+        if message:
+            message_display(message, 24, screen_width // 2, 750, message_color)
+            
+        # Check if mouse is over buttons to change cursor
+        mouse_pos = pygame.mouse.get_pos()
+        if start_button_rect.collidepoint(mouse_pos) or profile_button_rect.collidepoint(mouse_pos) or logout_button_rect.collidepoint(mouse_pos) or savequit_button_rect.collidepoint(mouse_pos):
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)  # Set custom cursor image
+        else:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)  # Set default system arrow cursor            
+        
+        pygame.display.flip()
+
+
+
 def check_forget_email(email):
     query = "SELECT nickname, password FROM user WHERE email = %s"
     my_cursor.execute(query, (email,))
@@ -1171,7 +1270,7 @@ def main_menu():
                                     message_display(login_message, 24, screen_width // 2, 750, login_message_color)
                                     pygame.display.flip
                                     time.sleep(0.5)
-                                    start_menu(profile,id)
+                                    start_menu_admin(profile,id)
                                     
                             else:
                                 login_message = "Login Failed!"
@@ -1515,6 +1614,180 @@ def profile_management(profile,id):
 
         # Draw profile label
         draw_text("Profile Management", custom_font1_big, black, screen_width // 2, 85)
+
+        # Calculate blinking cursor visibility
+        current_time = pygame.time.get_ticks()
+        if current_time - blink_timer > blink_interval:
+            blink = not blink
+            blink_timer = current_time
+
+        pygame.display.flip()
+
+def profile_management_admin(profile,id):
+
+    blink = True
+    blink_timer = pygame.time.get_ticks()
+    blink_interval = 500  # Adjust blinking interval as needed
+    scroll = 0
+    
+    # Define fonts
+    font_small = pygame.font.Font('font/Minecraft.ttf', 18)
+
+    # Fetch user data from the database
+    query = "SELECT id, nickname, age, password FROM admin WHERE email = %s"
+    my_cursor.execute(query, (profile,))
+    user_data = my_cursor.fetchone()
+    if user_data:
+        user_id, nickname, age, password = user_data
+    else:
+        user_id = nickname = age = password = ''
+
+    # Input boxes and initial values
+    input_boxes = {
+        "id": str(user_id),
+        "nickname": nickname,
+        "age": str(age),
+        "password": password
+    }
+
+    # Adjust input box positions and sizes based on image dimensions
+    input_rects = {
+        "id": button_image.get_rect(topleft=(screen_width//3, 170)), #150
+        "nickname": button_image.get_rect(topleft=(screen_width//3, 300)), #150
+        "age": button_image.get_rect(topleft=(screen_width//3, 430)), #150
+        "password": button_image.get_rect(topleft=(screen_width//3, 560)) #150
+    }
+
+    # Define margins for each input box
+    margins = {
+        "id": 100,
+        "nickname": 250,
+        "age": 120,
+        "password": 240
+    }
+
+    active_box = None
+    
+    # Assuming quit_button_image has a specific size (replace with actual dimensions if known)
+    button_width = quit_button_image.get_width()
+    button_height = quit_button_image.get_height()
+
+    # Create save_button_rect with the same dimensions as quit_button_image
+    save_button_rect = pygame.Rect(screen_width - 220, screen_height - 60, button_width, button_height)
+    logged_in_rect = pygame.Rect(20, screen_height - 60, 200, 50)  # Bottom left for "Logged in as" text
+
+    running = True
+    message = ''
+    cursor_length = 35
+    label_spacing = -30
+    while running:
+        cursor_over_input = False  # Flag to check if the cursor is over an input box or button
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if save_button_rect.collidepoint(mouse_pos):
+                    # Save the updated user data to the database
+                    new_data = (
+                        input_boxes["nickname"],
+                        int(input_boxes["age"]),
+                        input_boxes["password"],
+                        profile
+                    )
+                    query = "UPDATE admin SET nickname = %s, age = %s, password = %s WHERE email = %s"
+                    my_cursor.execute(query, new_data)
+                    conn.commit()
+                    message = "Profile Updated Successfully!"
+                    # Display login message if any
+                    if message:
+                        message_display(message, 24, screen_width // 2, 700, green)
+                        pygame.display.flip
+                    time.sleep(1)
+                    start_menu_admin(profile,id)
+                elif back_button_rect.collidepoint(mouse_pos):
+                    start_menu_admin(profile,id)
+                for key, rect in input_rects.items():
+                    if key != "id" and rect.collidepoint(mouse_pos):  # ID box is not editable
+                        active_box = key
+                        break
+                else:
+                    active_box = None
+            elif event.type == pygame.KEYDOWN and active_box:
+                if event.key == pygame.K_RETURN:
+                    active_box = None
+                elif event.key == pygame.K_BACKSPACE:
+                    input_boxes[active_box] = input_boxes[active_box][:-1]
+                else:
+                    input_boxes[active_box] += event.unicode
+
+        scroll += 1.2
+        if scroll > screen_width:  # Adjust as needed
+            scroll = 0
+        # Draw menu background with parallax effect
+        draw_menu(scroll) 
+
+        # Inside the rendering loop:
+        for key, rect in input_rects.items():
+            # Draw label text
+            if key == "id":
+                label_text = "ID: "
+            elif key == "nickname":
+                label_text = "Nickname: "
+            elif key == "age":
+                label_text = "Age: "
+            elif key == "password":
+                label_text = "Password: "
+            else:
+                label_text = ""
+            # Draw input box image
+            screen.blit(button_image, rect)
+
+            label_surface = custom_font1.render(label_text, True, black)
+            label_rect = label_surface.get_rect(midleft=(rect.x - label_spacing, rect.centery))
+            screen.blit(label_surface, label_rect)
+
+            # Get margin for current key, default to 50 if not specified
+            margin_left = margins.get(key, 50)
+
+            # Draw text inside input box, aligned left with a specified margin
+            text_surface = custom_font1.render(input_boxes[key], True, black)
+            text_rect = text_surface.get_rect(left=rect.x + margin_left, centery=rect.centery)
+            screen.blit(text_surface, text_rect)
+
+            if active_box == key and blink:
+                cursor_x = text_rect.right + 2  # Position cursor to the right of text
+                cursor_center = text_rect.centery
+                cursor_top = cursor_center - cursor_length // 2
+                cursor_bottom = cursor_center + cursor_length // 2
+                pygame.draw.line(screen, black, (cursor_x, cursor_top), (cursor_x, cursor_bottom), 2)
+
+            # Check if cursor is over an input box
+            if rect.collidepoint(pygame.mouse.get_pos()):
+                cursor_over_input = True
+        
+        # Check if cursor is over back button or save button
+        if back_button_rect.collidepoint(pygame.mouse.get_pos()) or save_button_rect.collidepoint(pygame.mouse.get_pos()):
+            cursor_over_input = True
+
+        # Set cursor to hand if over input box or button, else set to arrow
+        if cursor_over_input:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+        else:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+
+        # Draw "Logged in as" text and image at the bottom left
+        screen.blit(input_image2, (logged_in_rect.x, logged_in_rect.y))
+        draw_text(f"Admin as: {profile}", font_small, black, logged_in_rect.x + 30, logged_in_rect.y + 20, align="left")
+
+        # Draw buttons
+        screen.blit(quit_button_image, save_button_rect)  # Use the logout button image for the save button
+        screen.blit(back_button_image, back_button_rect)
+        draw_text("Save", font_small, black, save_button_rect.centerx, save_button_rect.centery)
+
+        # Draw profile label
+        draw_text("Admin Profile Management", custom_font1_big, black, screen_width // 2, 85)
 
         # Calculate blinking cursor visibility
         current_time = pygame.time.get_ticks()
