@@ -150,7 +150,7 @@ def otp_code(name_otp, receiver_email):
 
     # Display OTP sent message
     if message2:
-        message_display(message2, 24, screen_width // 2, 700, green)
+        message_display(message2, 24, screen_width // 2, 900, green)
         pygame.display.flip()
         time.sleep(1)
 
@@ -232,7 +232,7 @@ def otp_code(name_otp, receiver_email):
             pygame.display.flip()
             time.sleep(1)
             logo_menu()
-    server.quit()
+    
 
 def send_password_email(name_otp, password_otp, receiver_email):
     valid_receiver_email = email_verification(receiver_email)
@@ -255,10 +255,28 @@ def check_login(email, password):
     result = my_cursor.fetchone()
     return result is not None
 
+# Function to check login credentials
+def check_login_admin(email, password):
+    query = "SELECT * FROM ADMIN WHERE email=%s AND password=%s"
+    my_cursor.execute(query, (email, password))
+    result = my_cursor.fetchone()
+    return result is not None
+
 # Function to register new user
 def register_user(username, age, email, password):
     try:
         query = "INSERT INTO USER (nickname, age, email, password) VALUES (%s, %s, %s, %s)"
+        my_cursor.execute(query, (username, age, email, password))
+        conn.commit()
+        return True
+    except pymysql.Error as e:
+        message_display(f"Error: {e}", 24, screen_width // 2, 500, black)
+        return False
+    
+# Function to register new user
+def register_admin(username, age, email, password):
+    try:
+        query = "INSERT INTO ADMIN (nickname, age, email, password) VALUES (%s, %s, %s, %s)"
         my_cursor.execute(query, (username, age, email, password))
         conn.commit()
         return True
@@ -552,6 +570,30 @@ def validate_user_input(username, age, email, password):
     
     if not password or len(password) > 50:
         return False, "Password is required and must be less than or equal to 50 characters."
+    
+    return True, "Input validated successfully."
+
+# Function to validate admin input
+def validate_admin_input(username, age, email, password, admin_code):
+    if not username or len(username) > 50:
+        return False, "Username is required and must be less than or equal to 50 characters."
+    
+    try:
+        age = int(age)
+        if age <= 0 or age > 99:
+            return False, "Age must be a positive integer between 1 and 99."
+    except ValueError:
+        return False, "Invalid age."
+    
+    import re
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email) or len(email) > 100:
+        return False, "Invalid email format."
+    
+    if not password or len(password) > 50:
+        return False, "Password is required and must be less than or equal to 50 characters."
+    
+    if admin_code != "sdp2024":
+        return False, "Wrong admin code."
     
     return True, "Input validated successfully."
 
@@ -871,6 +913,15 @@ def check_forget_email(email):
         return name_otp, password_otp
     return None
 
+def check_forget_email_admin(email):
+    query = "SELECT nickname, password FROM admin WHERE email = %s"
+    my_cursor.execute(query, (email,))
+    result = my_cursor.fetchone()
+    if result:
+        name_otp, password_otp = result
+        return name_otp, password_otp
+    return None
+
 def forget_password():
     running = True
     email = ''
@@ -886,35 +937,67 @@ def forget_password():
             if event.type == pygame.QUIT:
                 running = False
         
-        inputs = {
-            "Email": (350, 780, 500, 30, 32),
-        }             
-        responses = multi_text_input2(inputs)
-        email = responses["Email"]  
+        if user == "player":
+            inputs = {
+                "Email": (350, 780, 500, 30, 32),
+            }             
+            responses = multi_text_input2(inputs)
+            email = responses["Email"]  
 
 
-        if email:
-            user_data = check_forget_email(email)
-            if user_data:
-                name_otp, password_otp = user_data
-                receiver_email = email
-                otp_code(name_otp, receiver_email)
-                send_password_email(name_otp, password_otp, receiver_email)
-                login_message = f"Password has been sent to {receiver_email}, login to play."
-                login_message_color = green
-                if login_message:
-                    message_display(login_message, 24, screen_width // 2, 750, login_message_color)
-                    pygame.display.flip()
-                    time.sleep(1)
-                main_menu()
-            else:
-                login_message = "Email not found"
-                login_message_color = red
-                if login_message:
-                    message_display(login_message, 24, screen_width // 2, 750, login_message_color)
-                    pygame.display.flip()
-                    time.sleep(1)
-                logo_menu()
+            if email:
+                user_data = check_forget_email(email)
+                if user_data:
+                    name_otp, password_otp = user_data
+                    receiver_email = email
+                    otp_code(name_otp, receiver_email)
+                    send_password_email(name_otp, password_otp, receiver_email)
+                    login_message = f"Password has been sent to {receiver_email}, login to play."
+                    login_message_color = green
+                    if login_message:
+                        message_display(login_message, 24, screen_width // 2, 900, login_message_color)
+                        pygame.display.flip()
+                        time.sleep(1)
+                    main_menu()
+                else:
+                    login_message = "Email not found"
+                    login_message_color = red
+                    if login_message:
+                        message_display(login_message, 24, screen_width // 2, 900, login_message_color)
+                        pygame.display.flip()
+                        time.sleep(1)
+                    logo_menu()
+
+        elif user == "admin":
+            inputs = {
+                "Email": (350, 780, 500, 30, 32),
+            }             
+            responses = multi_text_input2(inputs)
+            email = responses["Email"]  
+
+
+            if email:
+                user_data = check_forget_email_admin(email)
+                if user_data:
+                    name_otp, password_otp = user_data
+                    receiver_email = email
+                    otp_code(name_otp, receiver_email)
+                    send_password_email(name_otp, password_otp, receiver_email)
+                    login_message = f"Password has been sent to {receiver_email}, login to play."
+                    login_message_color = green
+                    if login_message:
+                        message_display(login_message, 24, screen_width // 2, 900, login_message_color)
+                        pygame.display.flip()
+                        time.sleep(1)
+                    main_menu()
+                else:
+                    login_message = "Email not found"
+                    login_message_color = red
+                    if login_message:
+                        message_display(login_message, 24, screen_width // 2, 900, login_message_color)
+                        pygame.display.flip()
+                        time.sleep(1)
+                    logo_menu()
         
         scroll += 10   # Increase scroll speed for faster movement
         if scroll > menu_width:
@@ -923,6 +1006,75 @@ def forget_password():
         screen.fill(white)
         # Draw menu background with parallax effect
         draw_menu(scroll)
+
+# Main menu2 loop
+def main_menu2():
+    global screen
+    global user
+    running = True
+    user = ""
+    scroll = 0
+    
+    
+    while running:
+        
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                # Check if quit button clicked
+                
+                if quit_button_rect.collidepoint(mouse_pos):
+                    pygame.quit()
+                    sys.exit()
+
+                # Check if login button clicked
+                player_button_rect = login_button_image.get_rect(center=(screen_width // 2, 225))
+                
+                if player_button_rect.collidepoint(mouse_pos):
+                    user = "player"
+                    return user
+                
+                # Inside the main_menu function where registration button is handled
+                admin_button_rect = register_button_image.get_rect(center=(screen_width // 2, 525))
+                
+                if admin_button_rect.collidepoint(mouse_pos):
+                    user = "admin"
+                    return user
+
+        scroll += 1.7   # Increase scroll speed for faster movement
+        if scroll > menu_width:
+            scroll = 0 
+               
+        screen.fill(white)
+        # Draw menu background with parallax effect
+        draw_menu(scroll)
+
+        # Display buttons with images
+        player_button_rect = login_button_image.get_rect(center=(screen_width // 2, 225))
+        admin_button_rect = register_button_image.get_rect(center=(screen_width // 2, 525))
+        screen.blit(login_button_image, player_button_rect)
+        screen.blit(register_button_image, admin_button_rect)
+
+        # Add text on top of the button images
+        text_surf, text_rect = text_objects("Player", custom_font1_big, black)
+        text_rect.center = player_button_rect.center
+        screen.blit(text_surf, text_rect)
+        
+        text_surf, text_rect = text_objects("Admin", custom_font1_big, black)
+        text_rect.center = admin_button_rect.center
+        screen.blit(text_surf, text_rect)
+
+        # Display quit button and its text
+        quit_button_rect = quit_button_image.get_rect(topleft=(40, 40))
+        screen.blit(quit_button_image, quit_button_rect)
+        text_surf, text_rect = text_objects("Quit", custom_font1_small, black)
+        text_rect.center = quit_button_rect.center
+        screen.blit(text_surf, text_rect)
+        
+        pygame.display.flip()
         
         
 # Main menu loop
@@ -936,6 +1088,7 @@ def main_menu():
     login_message = ''
     scroll = 0
     profile= ''
+    
     
     while running:
         clock = pygame.time.Clock()
@@ -956,82 +1109,159 @@ def main_menu():
                 login_button_rect = login_button_image.get_rect(center=(screen_width // 2, 225))
                 
                 if login_button_rect.collidepoint(mouse_pos):
-                    # Show login input boxes
-                    inputs = {
-                        "Email": (350, 450, 300, 30, 32),
-                        "Password": (350, 850, 300, 30, 32)
-                    }
-                    responses = multi_text_input(inputs, input_image_path, eye_image_path, eye_closed_image_path)
-                    email = responses["Email"]
-                    password = responses["Password"]
-                    if email and password:
-                        if check_login(email, password ):
-                            login_message = "Login Successful!"
-                            login_message_color = green
-                            profile = email
-                            query = "SELECT id FROM user WHERE email = %s"
-                            my_cursor.execute(query, (profile,))
-                            result = my_cursor.fetchone()
-                            if result:
-                                id = result[0]  # Extracting the first element from the tuple
-                                print(f"Profile ID: {id}")
+                    main_menu2()
+                    if user == "player":
+                        # Show login input boxes
+                        inputs = {
+                            "Email": (350, 450, 300, 30, 32),
+                            "Password": (350, 850, 300, 30, 32)
+                        }
+                        responses = multi_text_input(inputs, input_image_path, eye_image_path, eye_closed_image_path)
+                        email = responses["Email"]
+                        password = responses["Password"]
+                        if email and password:
+                            if check_login(email, password ):
+                                login_message = "Login Successful!"
+                                login_message_color = green
+                                profile = email
+                                query = "SELECT id FROM user WHERE email = %s"
+                                my_cursor.execute(query, (profile,))
+                                result = my_cursor.fetchone()
+                                if result:
+                                    id = result[0]  # Extracting the first element from the tuple
+                                    print(f"Profile ID: {id}")
+                                else:
+                                    print("No profile found for the given email.")
+                                if login_message:
+                                    message_display(login_message, 24, screen_width // 2, 750, login_message_color)
+                                    pygame.display.flip
+                                    time.sleep(0.5)
+                                    start_menu(profile,id)
+                                    
                             else:
-                                print("No profile found for the given email.")
-                            if login_message:
-                                message_display(login_message, 24, screen_width // 2, 750, login_message_color)
-                                pygame.display.flip
-                                time.sleep(0.5)
-                                start_menu(profile,id)
-                                
+                                login_message = "Login Failed!"
+                                login_message_color = red
                         else:
-                            login_message = "Login Failed!"
+                            login_message = "Please fill in all fields."
                             login_message_color = red
-                    else:
-                        login_message = "Please fill in all fields."
-                        login_message_color = red
+                    
+                    elif user == "admin": 
+                        # Show login input boxes
+                        inputs = {
+                            "Email": (350, 450, 300, 30, 32),
+                            "Password": (350, 850, 300, 30, 32)
+                        }
+                        responses = multi_text_input(inputs, input_image_path, eye_image_path, eye_closed_image_path)
+                        email = responses["Email"]
+                        password = responses["Password"]
+                        if email and password:
+                            if check_login_admin(email, password ):
+                                login_message = "Login Successful!"
+                                login_message_color = green
+                                profile = email
+                                query = "SELECT id FROM ADMIN WHERE email = %s"
+                                my_cursor.execute(query, (profile,))
+                                result = my_cursor.fetchone()
+                                if result:
+                                    id = result[0]  # Extracting the first element from the tuple
+                                    print(f"Profile ID: {id}")
+                                else:
+                                    print("No profile found for the given email.")
+                                if login_message:
+                                    message_display(login_message, 24, screen_width // 2, 750, login_message_color)
+                                    pygame.display.flip
+                                    time.sleep(0.5)
+                                    start_menu(profile,id)
+                                    
+                            else:
+                                login_message = "Login Failed!"
+                                login_message_color = red
+                        else:
+                            login_message = "Please fill in all fields."
+                            login_message_color = red
+
+
                         
                 # Inside the main_menu function where registration button is handled
                 register_button_rect = register_button_image.get_rect(center=(screen_width // 2, 525))
                 
                 if register_button_rect.collidepoint(mouse_pos):
-                    register_inputs = {
-                        "New Username": (150, 300, 500, 30, 32),
-                        "Age": (150, 550, 100, 30, 32),
-                        "Email": (150, 800, 500, 30, 32),
-                        "Password": (150, 1050, 500, 30, 32)
-                    }
-                    responses = multi_text_input(register_inputs, input_image_path, eye_image_path, eye_closed_image_path)
-                    
-                    # Check if all fields are filled
-                    if all(responses.values()):
-                        # Validate user input
-                        valid, message = validate_user_input(responses["New Username"], responses["Age"], responses["Email"], responses["Password"])
+                    main_menu2()
+                    if user == "player":
+                        register_inputs = {
+                            "New Username": (150, 300, 500, 30, 32),
+                            "Age": (150, 550, 100, 30, 32),
+                            "Email": (150, 800, 500, 30, 32),
+                            "Password": (150, 1050, 500, 30, 32)
+                        }
+                        responses = multi_text_input(register_inputs, input_image_path, eye_image_path, eye_closed_image_path)
                         
-                        if valid:
-                            name_otp = responses["New Username"]
-                            receiver_email = responses["Email"]
-                            otp_code(name_otp, receiver_email)
-                            # Proceed with registration in MySQL database
-                            if register_user(responses["New Username"], responses["Age"], responses["Email"], responses["Password"]):
-                                
-                                login_message = "Registration Successful! Login your account to play."
-                                login_message_color = green
-                                query = "SELECT id FROM user WHERE email = %s"
-                                my_cursor.execute(query, (receiver_email,))
-                                result = my_cursor.fetchone()
-                                id_2 = result[0]
-                                query_2 = f"INSERT INTO `stage`(`id`, `stage1`) VALUES ('{id_2}', 0)"
-                                my_cursor.execute(query_2)
-                                conn.commit()
+                        # Check if all fields are filled
+                        if all(responses.values()):
+                            # Validate user input
+                            valid, message = validate_user_input(responses["New Username"], responses["Age"], responses["Email"], responses["Password"])
+                            
+                            if valid:
+                                name_otp = responses["New Username"]
+                                receiver_email = responses["Email"]
+                                otp_code(name_otp, receiver_email)
+                                # Proceed with registration in MySQL database
+                                if register_user(responses["New Username"], responses["Age"], responses["Email"], responses["Password"]):
+                                    
+                                    login_message = "Registration Successful! Login your account to play."
+                                    login_message_color = green
+                                    query = "SELECT id FROM user WHERE email = %s"
+                                    my_cursor.execute(query, (receiver_email,))
+                                    result = my_cursor.fetchone()
+                                    id_2 = result[0]
+                                    query_2 = f"INSERT INTO `stage`(`id`, `stage1`) VALUES ('{id_2}', 0)"
+                                    my_cursor.execute(query_2)
+                                    conn.commit()
+                                else:
+                                    login_message = "Email exist! Please try again."
+                                    login_message_color = red
                             else:
-                                login_message = "Email exist! Please try again."
+                                login_message = f"Registration Failed: {message}"
                                 login_message_color = red
                         else:
-                            login_message = f"Registration Failed: {message}"
+                            login_message = "Please fill in all fields."
                             login_message_color = red
-                    else:
-                        login_message = "Please fill in all fields."
-                        login_message_color = red
+
+                    elif user == "admin": 
+                        register_inputs = {
+                            "New Username": (150, 300, 500, 30, 32),
+                            "Age": (150, 550, 100, 30, 32),
+                            "Admin Code": (150, 800, 100, 30, 32),
+                            "Email": (150, 1050, 500, 30, 32),
+                            "Password": (150, 1300, 500, 30, 32)
+                        }
+                        responses = multi_text_input(register_inputs, input_image_path, eye_image_path, eye_closed_image_path)
+                        
+                        # Check if all fields are filled
+                        if all(responses.values()):
+                            # Validate user input
+                            valid, message = validate_admin_input(responses["New Username"], responses["Age"], responses["Email"], responses["Password"], responses["Admin Code"])
+                            
+                            if valid:
+                                name_otp = responses["New Username"]
+                                receiver_email = responses["Email"]
+                                otp_code(name_otp, receiver_email)
+                                # Proceed with registration in MySQL database
+                                if register_admin(responses["New Username"], responses["Age"], responses["Email"], responses["Password"]):
+                                    
+                                    login_message = "Registration Successful! Login your account to play."
+                                    login_message_color = green
+                                    
+                                else:
+                                    login_message = "Email exist! Please try again."
+                                    login_message_color = red
+                            else:
+                                login_message = f"Registration Failed: {message}"
+                                login_message_color = red
+                        else:
+                            login_message = "Please fill in all fields."
+                            login_message_color = red
+
 
         scroll += 10   # Increase scroll speed for faster movement
         if scroll > menu_width:
