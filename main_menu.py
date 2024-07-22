@@ -747,6 +747,127 @@ def stage_select_menu(profile,id):
         # Update display
         pygame.display.flip()
 
+def stage_select_menu_admin(profile, id):
+    scroll = 0
+    message = ""
+
+    # Load images and scale them
+    stage_image_orig = pygame.image.load('jpg/main_menu_button.png').convert_alpha()
+    stage_image_size = (150, 150)
+    stage_image = pygame.transform.scale(stage_image_orig, stage_image_size)
+
+    stage_image_orig2 = pygame.image.load('jpg/stage_button2.png').convert_alpha()
+    stage_image_size2 = (150, 150)
+    stage_image2 = pygame.transform.scale(stage_image_orig2, stage_image_size2)
+
+    # Scale images to block size
+    block_width = 150
+    block_height = 150
+
+    # Define block positions
+    blocks = []
+    rows = 3
+    cols = 3
+
+    # Calculate padding
+    padding_x = (screen.get_width() - (cols * block_width)) // (cols + 1)
+    padding_y = (screen.get_height() - (rows * block_height)) // (rows + 5)
+
+    for row in range(rows):
+        for col in range(cols):
+            x = padding_x + col * (block_width + padding_x)
+            y = padding_y + row * (block_height + padding_y) + 120
+            blocks.append(pygame.Rect(x, y, block_width, block_height))
+
+    # Prepare texts for each stage
+    texts = [f'Stage {i+1}' for i in range(8)] + ['Soon']
+
+    # Admin: Unlock all stages (bypass score check)
+    scores = "" * 8  # Placeholder scores to signify all stages are unlocked
+
+    # Render text onto each image
+    stage_images = []
+
+    for i, text in enumerate(texts):
+        img = stage_image.copy()
+
+        # Add score text if scores is not None and there is a corresponding score
+        if scores is not None and i < len(scores) and scores[i] is not None:
+            score_text = f"Score: {scores[i]}"
+            score_surface = custom_font_smallest.render(score_text, True, black)
+            score_rect = score_surface.get_rect(center=(block_width // 2, block_height // 2 + 40))
+            img.blit(score_surface, score_rect)
+        else:
+            # Use stage_image2 if scores is None or the score for this stage is None
+            img.blit(stage_image2, (0, 0))
+
+        text_surface = custom_font1_small1.render(text, True, black)
+        text_rect = text_surface.get_rect(center=(block_width // 2, block_height // 2))
+        img.blit(text_surface, text_rect)
+
+        stage_images.append(img)
+
+    # Main loop
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse_pos = event.pos
+                for i, block in enumerate(blocks):
+                    if block.collidepoint(mouse_pos):
+                        if i < len(texts):
+                            if texts[i] != 'Soon':
+                                print(f'Stage {i+1}')
+                                message = f"Stage {i+1}"
+                                message_color = green
+                            elif texts[i] == 'Soon':
+                                print('Coming Soon')
+                                message = "Coming Soon"
+                                message_color = red
+                            else:
+                                print("Haven't Unlocked")
+                                message = "Haven't Unlocked"
+                                message_color = red
+
+                    if back_button_rect.collidepoint(event.pos):
+                        start_menu_admin(profile, id)
+
+        # Clear screen
+        screen.fill(white)
+
+        scroll += 1.1  # Increase scroll speed for faster movement
+        if scroll > menu_width:
+            scroll = 0
+        draw_menu(scroll)
+
+        screen.blit(back_button_image, back_button_rect)
+
+        # Draw blocks (images)
+        for i, block in enumerate(blocks):
+            screen.blit(stage_images[i], block)
+
+        if message:
+            message_display(message, 24, screen_width // 2, 850, message_color)
+
+        mouse_pos = pygame.mouse.get_pos()
+        cursor_set = False
+        for block in blocks:
+            if block.collidepoint(mouse_pos):
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+                cursor_set = True
+                break
+        if back_button_rect.collidepoint(mouse_pos):
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+            cursor_set = True
+        if not cursor_set:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+
+        # Update display
+        pygame.display.flip()
+
+
 def about_us(profile,id):
     # Text
     about_us_text = [
