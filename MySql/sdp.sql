@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 13, 2024 at 05:15 PM
+-- Generation Time: Jul 29, 2024 at 04:16 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,27 @@ SET time_zone = "+00:00";
 --
 -- Database: `sdp`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admin`
+--
+
+CREATE TABLE `admin` (
+  `id` int(11) NOT NULL,
+  `nickname` varchar(50) NOT NULL,
+  `age` int(2) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admin`
+--
+
+INSERT INTO `admin` (`id`, `nickname`, `age`, `email`, `password`) VALUES
+(1, 'boon888', 11, 'yapboonsiong888@gmail.com', '11');
 
 -- --------------------------------------------------------
 
@@ -44,7 +65,7 @@ CREATE TABLE `stage` (
 --
 
 INSERT INTO `stage` (`id`, `stage1`, `stage2`, `stage3`, `stage4`, `stage5`, `stage6`, `stage7`, `stage8`) VALUES
-(2346, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(2, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -65,11 +86,18 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `nickname`, `age`, `email`, `password`) VALUES
-(2346, '111', 11, 'boonmonopoly@gmail.com', '111');
+(2, 'booo888', 11, 'boonmonopoly@gmail.com', '111');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `admin`
+--
+ALTER TABLE `admin`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `stage`
@@ -89,10 +117,16 @@ ALTER TABLE `user`
 --
 
 --
+-- AUTO_INCREMENT for table `admin`
+--
+ALTER TABLE `admin`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2347;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
