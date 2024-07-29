@@ -780,7 +780,7 @@ def stage_select_menu_admin(profile, id):
             blocks.append(pygame.Rect(x, y, block_width, block_height))
 
     # Prepare texts for each stage
-    texts = [f'Stage {i+1}' for i in range(8)] + ['Soon']
+    texts = [f'Stage {i+1}' for i in range(8)] + ['Edit']
 
     # Admin: Unlock all stages (bypass score check)
     scores = "" * 8  # Placeholder scores to signify all stages are unlocked
@@ -818,14 +818,15 @@ def stage_select_menu_admin(profile, id):
                 for i, block in enumerate(blocks):
                     if block.collidepoint(mouse_pos):
                         if i < len(texts):
-                            if texts[i] != 'Soon':
+                            if texts[i] != 'Edit':
                                 print(f'Stage {i+1}')
                                 message = f"Stage {i+1}"
                                 message_color = green
-                            elif texts[i] == 'Soon':
-                                print('Coming Soon')
-                                message = "Coming Soon"
+                            elif texts[i] == 'Edit':
+                                print('Edit Stage')
+                                message = "Edit stage"
                                 message_color = red
+                                admin_stage_menu(profile, id)
                             else:
                                 print("Haven't Unlocked")
                                 message = "Haven't Unlocked"
@@ -865,6 +866,176 @@ def stage_select_menu_admin(profile, id):
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
         # Update display
+        pygame.display.flip()
+
+
+def admin_stage_menu(profile, id):
+    scroll = 0
+    font_small = pygame.font.Font('font/Minecraft.ttf', 25)
+
+    input_box_image = pygame.image.load(input_image_path).convert_alpha()
+    input_box_image = pygame.transform.scale(input_box_image, (300, 60))
+
+    my_cursor.execute("SHOW COLUMNS FROM stage")
+    columns = my_cursor.fetchall()
+    stages = [col[0] for col in columns if col[0] != 'id']
+    
+    stage_buttons = {name: pygame.Rect(100, 250 + i * 40, 200, 30) for i, name in enumerate(stages)}
+
+    new_stage_input_rect = pygame.Rect(screen_width // 2 - 150, screen_height // 2 - 20, 300, 60)
+    add_stage_button_rect = pygame.Rect(screen_width // 2 - 125, screen_height // 2 + 40 + 30, 250, 50)
+    remove_stage_button_rect = pygame.Rect(screen_width // 2 - 150, screen_height // 2 + 100 + 100, 300, 50)
+
+    screen.blit(back_button_image, back_button_rect)
+
+    selected_stage = None
+    new_stage_name = ''
+    action = None
+    active_input = False  # Flag to check if input box is active
+
+    def scale_image(image, width, height):
+        return pygame.transform.scale(image, (width, height))
+
+    quit_button_image = scale_image(pygame.image.load(quit_button_path).convert_alpha(), 250, 50)
+    
+    running = True
+    blink = True
+    blink_timer = pygame.time.get_ticks()
+    blink_interval = 500
+
+    while running:
+        cursor_over_input = True
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if add_stage_button_rect.collidepoint(mouse_pos):
+                    if new_stage_name:
+                        try:
+                            query = f"ALTER TABLE stage ADD COLUMN `{new_stage_name}` INT DEFAULT NULL"
+                            my_cursor.execute(query)
+                            conn.commit()
+                            message = f"Stage '{new_stage_name}' added!"
+                            message_color = green
+                            stages.append(new_stage_name)
+                            stage_buttons = {name: pygame.Rect(100, 250 + i * 40, 200, 30) for i, name in enumerate(stages)}
+                            new_stage_name = ''
+                        except Exception as e:
+                            message = f"Error adding stage: {str(e)}"
+                            message_color = red
+                elif remove_stage_button_rect.collidepoint(mouse_pos):
+                    if selected_stage:
+                        try:
+                            query = f"ALTER TABLE stage DROP COLUMN `{selected_stage}`"
+                            my_cursor.execute(query)
+                            conn.commit()
+                            message = f"Stage '{selected_stage}' removed!"
+                            message_color = red
+                            stages.remove(selected_stage)
+                            stage_buttons = {name: pygame.Rect(100, 250 + i * 40, 200, 30) for i, name in enumerate(stages)}
+                            selected_stage = None
+                        except Exception as e:
+                            message = f"Error removing stage: {str(e)}"
+                            message_color = red
+                elif back_button_rect.collidepoint(mouse_pos):
+                    start_menu_admin(profile, id)
+
+                for key, rect in stage_buttons.items():
+                    if rect.collidepoint(mouse_pos):
+                        selected_stage = key
+                        break
+                else:
+                    selected_stage = None
+                
+                if new_stage_input_rect.collidepoint(mouse_pos):
+                    active_input = True  # Set active_input to True when inside input box
+                    cursor_over_input = False
+                else:
+                    active_input = False  # Deactivate input when clicking outside
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                elif event.key == pygame.K_BACKSPACE:
+                    new_stage_name = new_stage_name[:-1]
+                elif event.key == pygame.K_RETURN:
+                    if new_stage_name:
+                        try:
+                            query = f"ALTER TABLE stage ADD COLUMN `{new_stage_name}` INT DEFAULT NULL"
+                            my_cursor.execute(query)
+                            conn.commit()
+                            message = f"Stage '{new_stage_name}' added!"
+                            message_color = green
+                            stages.append(new_stage_name)
+                            stage_buttons = {name: pygame.Rect(100, 150 + i * 40, 200, 30) for i, name in enumerate(stages)}
+                            new_stage_name = ''
+                        except Exception as e:
+                            message = f"Error adding stage: {str(e)}"
+                            message_color = red
+                else:
+                    new_stage_name += event.unicode
+
+        scroll += 1.1
+        if scroll > menu_width:
+            scroll = 0
+        draw_menu(scroll)
+
+        # Calculate blinking cursor visibility
+        current_time = pygame.time.get_ticks()
+        if current_time - blink_timer > blink_interval:
+            blink = not blink
+            blink_timer = current_time
+            
+        for key, rect in stage_buttons.items():
+            button_color = (200, 200, 200) if selected_stage == key else (150, 150, 150)
+            pygame.draw.rect(screen, button_color, rect)
+            label_surface = font_small.render(key, True, black)
+            label_rect = label_surface.get_rect(center=rect.center)
+            screen.blit(label_surface, label_rect)
+
+        screen.blit(input_box_image, new_stage_input_rect.topleft)
+        text_surface = font_small.render(new_stage_name, True, black)
+        text_rect = text_surface.get_rect(center=new_stage_input_rect.center)
+        text_rect.y = new_stage_input_rect.y + (new_stage_input_rect.height - text_surface.get_height()) // 2
+        screen.blit(text_surface, text_rect)
+
+        if selected_stage:
+            pygame.draw.rect(screen, (255, 0, 0), remove_stage_button_rect)
+
+        screen.blit(quit_button_image, add_stage_button_rect)
+        screen.blit(back_button_image, back_button_rect)
+        draw_text("Add Stage", font_small, black, add_stage_button_rect.centerx, add_stage_button_rect.centery)
+        draw_text("Remove Stage", font_small, black, remove_stage_button_rect.centerx, remove_stage_button_rect.centery)
+        draw_text("Admin Stage Menu", custom_font1_big, black, screen_width // 2, 200)
+
+        if 'message' in locals():
+            message_display(message, 24, screen_width // 2, 850, message_color)
+        
+        
+        # Draw blinking cursor only if active_input is True
+        if active_input == cursor_over_input and blink:
+            cursor_x = text_rect.right + 5
+            cursor_center = new_stage_input_rect.centery
+            cursor_top = cursor_center - 10
+            cursor_bottom = cursor_center + 10
+            pygame.draw.line(screen, black, (cursor_x, cursor_top), (cursor_x, cursor_bottom), 2)
+            
+            
+
+        cursor_over_input = any(
+            rect.collidepoint(pygame.mouse.get_pos()) for rect in stage_buttons.values()
+        ) or add_stage_button_rect.collidepoint(pygame.mouse.get_pos()) \
+           or remove_stage_button_rect.collidepoint(pygame.mouse.get_pos()) \
+           or back_button_rect.collidepoint(pygame.mouse.get_pos())
+        
+        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND if cursor_over_input else pygame.SYSTEM_CURSOR_ARROW)
+        
+        
+        
+        
         pygame.display.flip()
 
 
