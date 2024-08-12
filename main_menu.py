@@ -702,6 +702,8 @@ def stage_select_menu(profile,id):
                                 print(f'Stage {i+1}')
                                 message = f"Stage {i+1}"
                                 message_color = green
+                                from stage1 import start_game
+                                start_game()
                             elif texts[i] == 'Soon':
                                 print('Coming Soon')
                                 message = "Coming Soon"
