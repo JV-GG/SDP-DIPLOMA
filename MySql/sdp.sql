@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 29, 2024 at 04:16 AM
+-- Generation Time: Aug 12, 2024 at 10:37 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -40,7 +40,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`id`, `nickname`, `age`, `email`, `password`) VALUES
-(1, 'boon888', 11, 'yapboonsiong888@gmail.com', '11');
+(1, 'boon888', 11, '1@gmail.com', '1');
 
 -- --------------------------------------------------------
 
@@ -50,22 +50,52 @@ INSERT INTO `admin` (`id`, `nickname`, `age`, `email`, `password`) VALUES
 
 CREATE TABLE `stage` (
   `id` int(11) NOT NULL,
-  `stage1` int(11) DEFAULT NULL,
-  `stage2` int(11) DEFAULT NULL,
-  `stage3` int(11) DEFAULT NULL,
-  `stage4` int(11) DEFAULT NULL,
-  `stage5` int(11) DEFAULT NULL,
-  `stage6` int(11) DEFAULT NULL,
-  `stage7` int(11) DEFAULT NULL,
-  `stage8` int(11) DEFAULT NULL
+  `stage1` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `stage`
 --
 
-INSERT INTO `stage` (`id`, `stage1`, `stage2`, `stage3`, `stage4`, `stage5`, `stage6`, `stage7`, `stage8`) VALUES
-(2, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `stage` (`id`, `stage1`) VALUES
+(2, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stage1_q`
+--
+
+CREATE TABLE `stage1_q` (
+  `id` int(11) NOT NULL,
+  `q1` text DEFAULT NULL,
+  `q2` text DEFAULT NULL,
+  `q3` text DEFAULT NULL,
+  `q4` text DEFAULT NULL,
+  `q5` text DEFAULT NULL,
+  `q6` text DEFAULT NULL,
+  `q7` text DEFAULT NULL,
+  `q8` text DEFAULT NULL,
+  `q9` text DEFAULT NULL,
+  `q10` text DEFAULT NULL,
+  `a1` text DEFAULT NULL,
+  `a2` text DEFAULT NULL,
+  `a3` text DEFAULT NULL,
+  `a4` text DEFAULT NULL,
+  `a5` text DEFAULT NULL,
+  `a6` text DEFAULT NULL,
+  `a7` text DEFAULT NULL,
+  `a8` text DEFAULT NULL,
+  `a9` text DEFAULT NULL,
+  `a10` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `stage1_q`
+--
+
+INSERT INTO `stage1_q` (`id`, `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `a1`, `a2`, `a3`, `a4`, `a5`, `a6`, `a7`, `a8`, `a9`, `a10`) VALUES
+(1, 'how are you', 'hi?', 'hi?', 'lool?', '', '', '', '', '', '', 'i am fine ', 'lool', '', '', '', '', '', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -86,7 +116,7 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `nickname`, `age`, `email`, `password`) VALUES
-(2, 'booo888', 11, 'boonmonopoly@gmail.com', '111');
+(2, 'booo888', 11, '1@gmail.com', '1');
 
 --
 -- Indexes for dumped tables
@@ -106,6 +136,12 @@ ALTER TABLE `stage`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `stage1_q`
+--
+ALTER TABLE `stage1_q`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
@@ -120,6 +156,12 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `admin`
 --
 ALTER TABLE `admin`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `stage1_q`
+--
+ALTER TABLE `stage1_q`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
