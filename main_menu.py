@@ -29,6 +29,8 @@ custom_font1_big = pygame.font.Font('font/Minecraft.ttf', 50)
 custom_font1_small1 = pygame.font.Font('font/Minecraft.ttf', 32)
 about_us_font = pygame.font.Font('font/Minecraft.ttf', 30)
 about_us_heading_font = pygame.font.Font('font/Minecraft.ttf', 60)
+stage_font = pygame.font.Font('font/Minecraft.ttf', 27)
+input_font = pygame.font.Font('font/Minecraft.ttf', 20)
 
 # Load button images
 login_button_image = pygame.image.load(r'jpg/main_menu_button.png')
@@ -681,7 +683,7 @@ def stage_select_menu(profile,id):
             img.blit(stage_image2, (0, 0))
 
         
-        text_surface = custom_font1_small1.render(text, True, black)
+        text_surface = stage_font.render(text, True, black)
         text_rect = text_surface.get_rect(center=(block_width // 2, block_height // 2))
         img.blit(text_surface, text_rect)
 
@@ -766,15 +768,11 @@ def stage_select_menu_admin(profile, id):
     block_width = 150
     block_height = 150
 
-    
     # Fetch column names from the `stage` table excluding 'id'
     query = "SHOW COLUMNS FROM `stage` WHERE Field != 'id'"
     my_cursor.execute(query)
     columns = my_cursor.fetchall()
     stage_names = [col[0] for col in columns] + ['Edit']  # Ensure 'Edit' is always last
-
-        
-    
 
     # Define block positions
     num_stages = len(stage_names)
@@ -800,9 +798,9 @@ def stage_select_menu_admin(profile, id):
         img = stage_image.copy()
 
         # Use stage_image2 if needed (adjust as necessary)
-        img.blit(stage_image2, (0, 0))
+        img.blit(stage_image, (0, 0))
 
-        text_surface = custom_font1_small1.render(text, True, black)
+        text_surface = stage_font.render(text, True, black)
         text_rect = text_surface.get_rect(center=(block_width // 2, block_height // 2))
         img.blit(text_surface, text_rect)
 
@@ -823,12 +821,13 @@ def stage_select_menu_admin(profile, id):
                                 print('Edit Stage button clicked.')
                                 message = "Edit stage"
                                 message_color = red
-                                
                                 admin_stage_menu(profile, id)
                             else:
-                                print(f'Stage {i+1}')
-                                message = f"Stage {i+1}"
+                                print(stage_names[i])
+                                message = stage_names[i]
                                 message_color = green
+                                selected_stage = stage_names[i]
+                                add_questions_to_stage(profile, id, selected_stage)
 
                 if back_button_rect.collidepoint(event.pos):
                     print('Back button clicked.')
@@ -850,7 +849,7 @@ def stage_select_menu_admin(profile, id):
                 screen.blit(stage_images[i], blocks[i])
 
         if message:
-            message_display(message, 24, screen_width // 2, 850, message_color)
+            message_display(message, 24, screen_width // 2, 900, message_color)
 
         mouse_pos = pygame.mouse.get_pos()
         cursor_set = False
@@ -868,7 +867,6 @@ def stage_select_menu_admin(profile, id):
         # Update display
         pygame.display.flip()
         
-
 
 def admin_stage_menu(profile, id):
     scroll = 0
@@ -924,19 +922,26 @@ def admin_stage_menu(profile, id):
                             query_create_table = f"""
                             CREATE TABLE `{new_stage_name}_q` (
                                     id INT PRIMARY KEY AUTO_INCREMENT, 
-                                    q1 TEXT, a1 TEXT, 
-                                    q2 TEXT, a2 TEXT, 
-                                    q3 TEXT, a3 TEXT, 
-                                    q4 TEXT, a4 TEXT, 
-                                    q5 TEXT, a5 TEXT, 
-                                    q6 TEXT, a6 TEXT, 
-                                    q7 TEXT, a7 TEXT, 
-                                    q8 TEXT, a8 TEXT, 
-                                    q9 TEXT, a9 TEXT, 
-                                    q10 TEXT, a10 TEXT
+                                    q1 TEXT, q2 TEXT, 
+                                    q3 TEXT, q4 TEXT, 
+                                    q5 TEXT, q6 TEXT, 
+                                    q7 TEXT, q8 TEXT, 
+                                    q9 TEXT, q10 TEXT, 
+                                    a1 TEXT, a2 TEXT, 
+                                    a3 TEXT, a4 TEXT, 
+                                    a5 TEXT, a6 TEXT, 
+                                    a7 TEXT, a8 TEXT, 
+                                    a9 TEXT, a10 TEXT
                                 )
                             """
                             my_cursor.execute(query_create_table)
+
+                            query_insert_null = f"""
+                            INSERT INTO `{new_stage_name}_q` (q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
+                            VALUES ("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                            """
+                            my_cursor.execute(query_insert_null)
+
                             conn.commit()
                             
                             message = f"Stage '{new_stage_name}' added!"
@@ -1049,8 +1054,6 @@ def admin_stage_menu(profile, id):
             cursor_bottom = cursor_center + 10
             pygame.draw.line(screen, black, (cursor_x, cursor_top), (cursor_x, cursor_bottom), 2)
             
-            
-
         cursor_over_input = any(
             rect.collidepoint(pygame.mouse.get_pos()) for rect in stage_buttons.values()
         ) or add_stage_button_rect.collidepoint(pygame.mouse.get_pos()) \
@@ -1059,11 +1062,136 @@ def admin_stage_menu(profile, id):
         
         pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND if cursor_over_input else pygame.SYSTEM_CURSOR_ARROW)
         
-        
-        
-        
         pygame.display.flip()
 
+def add_questions_to_stage(profile, id, selected_stage):
+    scroll = 0
+    message = ""
+
+    input_box_image = pygame.image.load(input_image_path).convert_alpha()
+    input_box_image = pygame.transform.scale(input_box_image, (880, 60))  # Make input boxes longer
+    
+    # Define rectangles for questions and answers, arranged in two columns
+    question_input_rects = [pygame.Rect(50 + (i % 2) * (880 + 50), 150 + (i // 2) * 70, 880, 60) for i in range(10)]
+    answer_input_rects = [pygame.Rect(50 + (i % 2) * (880 + 50), 600 + (i // 2) * 70, 880, 60) for i in range(10)]
+
+    questions = [''] * 10
+    answers = [''] * 10
+
+    active_input = None
+
+    # Define button rectangles
+    save_button_rect = pygame.Rect(screen_width // 2 - 150, screen_height - 100, 150, 50)
+    back_button_rect = pygame.Rect(screen_width // 2, screen_height - 100, 150, 50)
+
+    # Fetch existing questions and answers from the database
+    existing_data = fetch_existing_data(selected_stage)
+    if existing_data:
+        questions = existing_data[:10]
+        answers = existing_data[10:]
+
+    running = True
+
+    while running:
+        
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = event.pos
+                if save_button_rect.collidepoint(mouse_pos):
+                    message = "Questions and Answers saved"
+                    message_color = green
+                    message_display(message, 24, screen_width // 2, 900, message_color)
+                    time.sleep(0.5)
+                    save_questions_to_database(selected_stage, questions, answers)
+                    running = False
+                elif back_button_rect.collidepoint(mouse_pos):
+                    running = False
+                    # Call the function to return to stage_select_menu_admin
+                    stage_select_menu_admin(profile, id)
+                else:
+                    for i, rect in enumerate(question_input_rects + answer_input_rects):
+                        if rect.collidepoint(mouse_pos):
+                            active_input = i
+                            break
+                    else:
+                        active_input = None
+
+            elif event.type == pygame.KEYDOWN and active_input is not None:
+                index = active_input
+                if event.key == pygame.K_BACKSPACE:
+                    if index < 10:
+                        questions[index] = questions[index][:-1]
+                    else:
+                        answers[index - 10] = answers[index - 10][:-1]
+                elif event.key == pygame.K_RETURN:
+                    if index < 10:
+                        questions[index] = questions[index]
+                    else:
+                        answers[index - 10] = answers[index - 10]
+                else:
+                    if index < 10:
+                        questions[index] += event.unicode
+                    else:
+                        answers[index - 10] += event.unicode
+
+        scroll += 1.1
+        if scroll > menu_width:
+            scroll = 0
+        draw_menu(scroll)
+
+        
+        # Draw input boxes
+        for i, rect in enumerate(question_input_rects):
+            screen.blit(input_box_image, rect.topleft)
+            label_surface = stage_font.render(f'Q{i+1}: {questions[i]}', True, black)
+            label_rect = label_surface.get_rect(center=rect.center)
+            screen.blit(label_surface, label_rect)
+        
+        for i, rect in enumerate(answer_input_rects):
+            screen.blit(input_box_image, rect.topleft)
+            label_surface = stage_font.render(f'A{i+1}: {answers[i]}', True, black)
+            label_rect = label_surface.get_rect(center=rect.center)
+            screen.blit(label_surface, label_rect)
+
+        # Draw buttons
+        pygame.draw.rect(screen, green, save_button_rect)
+        pygame.draw.rect(screen, red, back_button_rect)
+
+        save_text = stage_font.render('Save', True, white)
+        back_text = stage_font.render('Back', True, white)
+        
+        screen.blit(save_text, save_button_rect.move(10, 10))
+        screen.blit(back_text, back_button_rect.move(10, 10))
+
+        
+            
+
+        pygame.display.flip()
+
+def fetch_existing_data(stage_name):
+    query = f"SELECT * FROM `{stage_name}_q` LIMIT 1"
+    my_cursor.execute(query)
+    result = my_cursor.fetchone()
+    if result:
+        return list(result[1:])  # Skip the ID column
+    return None
+
+def save_questions_to_database(selected_stage, questions, answers):
+    query = f"""
+    UPDATE `{selected_stage}_q` 
+    SET q1 = %s, q2 = %s, q3 = %s, q4 = %s, q5 = %s, q6 = %s, q7 = %s, q8 = %s, q9 = %s, q10 = %s, 
+        a1 = %s, a2 = %s, a3 = %s, a4 = %s, a5 = %s, a6 = %s, a7 = %s, a8 = %s, a9 = %s, a10 = %s
+    WHERE id = (
+        SELECT MIN(id) FROM `{selected_stage}_q`
+    )
+    """
+    data = tuple(questions + answers)
+    my_cursor.execute(query, data)
+    conn.commit()
 
 def about_us(profile,id):
     # Text
