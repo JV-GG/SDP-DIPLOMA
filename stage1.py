@@ -216,7 +216,7 @@ def start_game():  # Accept user_id as an argument
             self.rect.bottom = HEIGHT - 10
             self.speedx = 8
             self.health = 100
-            self.lives = 8
+            self.lives = 3
             self.hidden = False
             self.hide_time = 0
             self.gun = 1
