@@ -607,8 +607,15 @@ def draw_menu(scroll):
 # Define a function to get stage scores for a specific ID
 def get_stage_scores(id):
 
-    # Fetch stage scores for the given ID
-    query = "SELECT stage1, stage2, stage3, stage4, stage5, stage6, stage7, stage8 FROM stage WHERE ID = %s"
+    
+    my_cursor.execute("SHOW COLUMNS FROM `stage`")
+    columns = [column[0] for column in my_cursor.fetchall() if column[0] != 'id']
+    
+    
+    columns_to_select = ', '.join(columns)
+    query = f"SELECT {columns_to_select} FROM `stage` WHERE id = %s"
+    
+    # Step 3: Execute the query
     my_cursor.execute(query, (id,))
     result = my_cursor.fetchone()
 
@@ -1104,7 +1111,7 @@ def add_questions_to_stage(profile, id, selected_stage):
                 if save_button_rect.collidepoint(mouse_pos):
                     message = "Questions and Answers saved"
                     message_color = green
-                    message_display(message, 24, screen_width // 2, 900, message_color)
+                    message_display(message, 24, screen_width // 2, 950, message_color)
                     time.sleep(0.5)
                     save_questions_to_database(selected_stage, questions, answers)
                     running = False
