@@ -62,7 +62,7 @@ def start_game():  # Accept user_id as an argument
     pygame.mixer.music.load(os.path.join("sound", "background.ogg"))
     pygame.mixer.music.set_volume(0.4)
 
-    font_name = os.path.join("font.ttf")
+    font_name = os.path.join("font/font.ttf")
 
     def draw_text(surf, text, size, x, y, color=BLACK):
         font = pygame.font.Font(font_name, size)
@@ -208,10 +208,10 @@ def start_game():  # Accept user_id as an argument
     class Player(pygame.sprite.Sprite):
         def __init__(self):
             pygame.sprite.Sprite.__init__(self)
-            self.image = pygame.transform.scale(player_img, (50, 38))
+            self.image = pygame.transform.scale(player_img, (150, 88))
             self.image.set_colorkey(BLACK)
             self.rect = self.image.get_rect()
-            self.radius = 20
+            self.radius = 30
             self.rect.centerx = WIDTH / 2
             self.rect.bottom = HEIGHT - 10
             self.speedx = 8
