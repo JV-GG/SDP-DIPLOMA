@@ -766,42 +766,41 @@ def stage_select_menu_admin(profile, id):
     block_width = 150
     block_height = 150
 
+    
+    # Fetch column names from the `stage` table excluding 'id'
+    query = "SHOW COLUMNS FROM `stage` WHERE Field != 'id'"
+    my_cursor.execute(query)
+    columns = my_cursor.fetchall()
+    stage_names = [col[0] for col in columns] + ['Edit']  # Ensure 'Edit' is always last
+
+        
+    
+
     # Define block positions
-    blocks = []
-    rows = 3
+    num_stages = len(stage_names)
+    rows = (num_stages // 3) + (1 if num_stages % 3 != 0 else 0)  # Calculate rows based on the number of stages
     cols = 3
 
     # Calculate padding
     padding_x = (screen.get_width() - (cols * block_width)) // (cols + 1)
     padding_y = (screen.get_height() - (rows * block_height)) // (rows + 5)
 
+    blocks = []
     for row in range(rows):
         for col in range(cols):
             x = padding_x + col * (block_width + padding_x)
             y = padding_y + row * (block_height + padding_y) + 120
-            blocks.append(pygame.Rect(x, y, block_width, block_height))
+            if len(blocks) < num_stages:  # Only create blocks for available stage names
+                blocks.append(pygame.Rect(x, y, block_width, block_height))
 
-    # Prepare texts for each stage
-    texts = [f'Stage {i+1}' for i in range(8)] + ['Edit']
-
-    # Admin: Unlock all stages (bypass score check)
-    scores = "" * 8  # Placeholder scores to signify all stages are unlocked
-
-    # Render text onto each image
+    # Prepare stage images
     stage_images = []
-
-    for i, text in enumerate(texts):
+    for i in range(num_stages):
+        text = stage_names[i]
         img = stage_image.copy()
 
-        # Add score text if scores is not None and there is a corresponding score
-        if scores is not None and i < len(scores) and scores[i] is not None:
-            score_text = f"Score: {scores[i]}"
-            score_surface = custom_font_smallest.render(score_text, True, black)
-            score_rect = score_surface.get_rect(center=(block_width // 2, block_height // 2 + 40))
-            img.blit(score_surface, score_rect)
-        else:
-            # Use stage_image2 if scores is None or the score for this stage is None
-            img.blit(stage_image2, (0, 0))
+        # Use stage_image2 if needed (adjust as necessary)
+        img.blit(stage_image2, (0, 0))
 
         text_surface = custom_font1_small1.render(text, True, black)
         text_rect = text_surface.get_rect(center=(block_width // 2, block_height // 2))
@@ -819,23 +818,21 @@ def stage_select_menu_admin(profile, id):
                 mouse_pos = event.pos
                 for i, block in enumerate(blocks):
                     if block.collidepoint(mouse_pos):
-                        if i < len(texts):
-                            if texts[i] != 'Edit':
+                        if i < len(stage_names):
+                            if stage_names[i] == 'Edit':
+                                print('Edit Stage button clicked.')
+                                message = "Edit stage"
+                                message_color = red
+                                
+                                admin_stage_menu(profile, id)
+                            else:
                                 print(f'Stage {i+1}')
                                 message = f"Stage {i+1}"
                                 message_color = green
-                            elif texts[i] == 'Edit':
-                                print('Edit Stage')
-                                message = "Edit stage"
-                                message_color = red
-                                admin_stage_menu(profile, id)
-                            else:
-                                print("Haven't Unlocked")
-                                message = "Haven't Unlocked"
-                                message_color = red
 
-                    if back_button_rect.collidepoint(event.pos):
-                        start_menu_admin(profile, id)
+                if back_button_rect.collidepoint(event.pos):
+                    print('Back button clicked.')
+                    start_menu_admin(profile, id)
 
         # Clear screen
         screen.fill(white)
@@ -848,8 +845,9 @@ def stage_select_menu_admin(profile, id):
         screen.blit(back_button_image, back_button_rect)
 
         # Draw blocks (images)
-        for i, block in enumerate(blocks):
-            screen.blit(stage_images[i], block)
+        for i in range(len(stage_images)):
+            if i < len(blocks):
+                screen.blit(stage_images[i], blocks[i])
 
         if message:
             message_display(message, 24, screen_width // 2, 850, message_color)
@@ -869,6 +867,7 @@ def stage_select_menu_admin(profile, id):
 
         # Update display
         pygame.display.flip()
+        
 
 
 def admin_stage_menu(profile, id):
@@ -878,12 +877,13 @@ def admin_stage_menu(profile, id):
     input_box_image = pygame.image.load(input_image_path).convert_alpha()
     input_box_image = pygame.transform.scale(input_box_image, (300, 60))
 
+    # Fetch column names from the `stage` table
     my_cursor.execute("SHOW COLUMNS FROM stage")
     columns = my_cursor.fetchall()
     stages = [col[0] for col in columns if col[0] != 'id']
     
+    # Define stage buttons and other UI elements
     stage_buttons = {name: pygame.Rect(100, 250 + i * 40, 200, 30) for i, name in enumerate(stages)}
-
     new_stage_input_rect = pygame.Rect(screen_width // 2 - 150, screen_height // 2 - 20, 300, 60)
     add_stage_button_rect = pygame.Rect(screen_width // 2 - 125, screen_height // 2 + 40 + 30, 250, 50)
     remove_stage_button_rect = pygame.Rect(screen_width // 2 - 150, screen_height // 2 + 100 + 100, 300, 50)
@@ -919,7 +919,26 @@ def admin_stage_menu(profile, id):
                         try:
                             query = f"ALTER TABLE stage ADD COLUMN `{new_stage_name}` INT DEFAULT NULL"
                             my_cursor.execute(query)
+                            
+                            # Create a new table with columns q1 to q10 as long strings
+                            query_create_table = f"""
+                            CREATE TABLE `{new_stage_name}_q` (
+                                    id INT PRIMARY KEY AUTO_INCREMENT, 
+                                    q1 TEXT, a1 TEXT, 
+                                    q2 TEXT, a2 TEXT, 
+                                    q3 TEXT, a3 TEXT, 
+                                    q4 TEXT, a4 TEXT, 
+                                    q5 TEXT, a5 TEXT, 
+                                    q6 TEXT, a6 TEXT, 
+                                    q7 TEXT, a7 TEXT, 
+                                    q8 TEXT, a8 TEXT, 
+                                    q9 TEXT, a9 TEXT, 
+                                    q10 TEXT, a10 TEXT
+                                )
+                            """
+                            my_cursor.execute(query_create_table)
                             conn.commit()
+                            
                             message = f"Stage '{new_stage_name}' added!"
                             message_color = green
                             stages.append(new_stage_name)
@@ -933,7 +952,12 @@ def admin_stage_menu(profile, id):
                         try:
                             query = f"ALTER TABLE stage DROP COLUMN `{selected_stage}`"
                             my_cursor.execute(query)
+
+                            # Drop the associated table for the stage
+                            query_drop_table = f"DROP TABLE IF EXISTS `{selected_stage}_q`"
+                            my_cursor.execute(query_drop_table)
                             conn.commit()
+                            
                             message = f"Stage '{selected_stage}' removed!"
                             message_color = red
                             stages.remove(selected_stage)
