@@ -921,7 +921,7 @@ def admin_stage_menu(profile, id):
                             message = f"Stage '{new_stage_name}' added!"
                             message_color = green
                             stages.append(new_stage_name)
-                            stage_buttons = {name: pygame.Rect(100, 550 + i * 40, 200, 30) for i, name in enumerate(stages)}
+                            stage_buttons = {name: pygame.Rect(100, 250 + i * 40, 200, 30) for i, name in enumerate(stages)}
                             new_stage_name = ''
                         except Exception as e:
                             message = f"Error adding stage: {str(e)}"
@@ -970,7 +970,7 @@ def admin_stage_menu(profile, id):
                             message = f"Stage '{new_stage_name}' added!"
                             message_color = green
                             stages.append(new_stage_name)
-                            stage_buttons = {name: pygame.Rect(100, 150 + i * 40, 200, 30) for i, name in enumerate(stages)}
+                            stage_buttons = {name: pygame.Rect(100, 250 + i * 40, 200, 30) for i, name in enumerate(stages)}
                             new_stage_name = ''
                         except Exception as e:
                             message = f"Error adding stage: {str(e)}"
