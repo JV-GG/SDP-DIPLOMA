@@ -113,26 +113,17 @@ def start_game():  # Accept user_id as an argument
                     return False
 
     def ask_question():
-        questions = [
-            ("x + y = 24 2x + 4y = 64" + " " + "Please find the value of x and the value of y", "x=16,y=8"),
-            ("x + 3y = 6 2x + 8y = -12" + " " + "Please find the value of x and the value of y", "x=42,y=-12"),
-            ("2x + 3y = 16 5x - 4y = -6" + " " + "Please find the value of x and the value of y", "x=2,y=4"),
-            ("Which of the following relations are functions?" 
-             "(i) f = {(1, 3), (1, 5), (2, 3), (2, 5)}"
-            "(ii) g = {(2, 1), (5, 1), (8, 1), (11, 1)}", "i"),
-            ("Let f: R →R : f(x) = x2 + 1. Find f-1(10)","-3,3"),
-            ("Find the inverse of the function f(x) = 4x − 3"
-             "Notes: just direct type in the answer example =(x+3)/3",
-             "(x+3/4)"),
-            ("A function is given by f(x)=3x2+3x−4. Find f(2).","14"),
-            ("If f(x)=0.3x2−9x, evaluate f(10).","-60"),
-            ("f(x)=2x2+x+2 ,Evaluate f(6)","80"),
-            ("What is the next number in the following sequence? 10,20,25,50,55,110,115,...", "230")
+        my_cursor.execute("SELECT `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `a1`, `a2`, `a3`, `a4`, `a5`, `a6`, `a7`, `a8`, `a9`, `a10` FROM `stage1_q`  ORDER BY RAND() LIMIT 1")
+        result = my_cursor.fetchone()
 
-
-
-        ]
-        question, answer = random.choice(questions)
+        if result:
+            questions = result[:10]
+            answers = result[10:]
+            question = random.choice(questions)
+            answer = answers[questions.index(question)]
+        else:
+            return False, False
+        
         draw_text(screen, question, 24, WIDTH / 2, HEIGHT / 2 - 50)
         
         input_box = pygame.Rect(WIDTH / 2 - 100, HEIGHT / 2, 200, 32)  # Define the text box area
@@ -402,6 +393,29 @@ def start_game():  # Accept user_id as an argument
                 all_sprites.add(pow)
                 powers.add(pow)
             new_rock()
+
+        #Check if the score have reach the limit
+        if score >= 99:
+            screen.blit(background_img, (0, 0))
+            draw_text(screen, "Congratulations! You've reached 9999 points!", 48, WIDTH / 2, HEIGHT / 4)
+            draw_text(screen, "Press C to Continue or Q to Return to Homepage", 22, WIDTH / 2, HEIGHT / 2)
+            pygame.display.update()
+
+            waiting = True
+            while waiting:
+                clock.tick(FPS)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        running = False
+                        break
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_c:
+                            show_init = True
+                            death_expl = None  # Reset death_expl for a new game
+                            waiting = False
+                        elif event.key == pygame.K_q:
+                            return
 
         hits = pygame.sprite.spritecollide(player, rocks, True, pygame.sprite.collide_circle)
         for hit in hits:
