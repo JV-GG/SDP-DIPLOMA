@@ -658,6 +658,7 @@ def stage_select_menu(profile,id):
     block_height = 150
 
     # Get stage scores from the database
+    check_and_update_stage(id)
     scores = get_stage_scores(id)
             
     # Fetch column names from the `stage` table excluding 'id'
@@ -778,7 +779,9 @@ def check_and_update_stage(id):
     if result:
         columns = my_cursor.description
         for i in range(1, len(result)):
-            if result[i] is None or result[i] < 0:
+            if result[i] == 0 :
+                break
+            elif result[i] is None :
                 # Update the first column with a NULL or negative value to 0
                 column_name = columns[i][0]
                 update_query = f"UPDATE `stage` SET `{column_name}` = 0 WHERE `id` = %s"
@@ -1307,7 +1310,7 @@ def start_menu(profile,id):
                     if start_button_rect.collidepoint(mouse_pos):
                         print("Start button clicked")
                         pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
-                        check_and_update_stage(id)
+                        
                         stage_select_menu(profile,id)
                     elif profile_button_rect.collidepoint(mouse_pos):
                         print("Profile button clicked")
