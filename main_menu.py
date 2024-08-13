@@ -607,7 +607,14 @@ def draw_menu(scroll):
 # Define a function to get stage scores for a specific ID
 def get_stage_scores(id):
 
-    
+    conn = pymysql.connect(
+    host='localhost',
+    user='root',
+    password='',
+    database='sdp'
+    )
+    my_cursor = conn.cursor()
+
     my_cursor.execute("SHOW COLUMNS FROM `stage`")
     columns = [column[0] for column in my_cursor.fetchall() if column[0] != 'id']
     
@@ -715,7 +722,8 @@ def stage_select_menu(profile,id):
                                 message_color = green
                                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
                                 from stage1 import start_game
-                                start_game()
+                                start_game(stage_names[i], id)
+                                return
                             elif stage_names[i] == 'Soon':
                                 print('Coming Soon')
                                 message = "Coming Soon"
@@ -760,6 +768,23 @@ def stage_select_menu(profile,id):
 
         # Update display
         pygame.display.flip()
+
+def check_and_update_stage(id):
+    # Query to fetch all stage columns for the given ID
+    query = "SELECT * FROM `stage` WHERE `id` = %s"
+    my_cursor.execute(query, (id,))
+    result = my_cursor.fetchone()
+
+    if result:
+        columns = my_cursor.description
+        for i in range(1, len(result)):
+            if result[i] is None or result[i] < 0:
+                # Update the first column with a NULL or negative value to 0
+                column_name = columns[i][0]
+                update_query = f"UPDATE `stage` SET `{column_name}` = 0 WHERE `id` = %s"
+                my_cursor.execute(update_query, (id,))
+                conn.commit()
+                break
 
 def stage_select_menu_admin(profile, id):
     scroll = 0
@@ -1282,6 +1307,7 @@ def start_menu(profile,id):
                     if start_button_rect.collidepoint(mouse_pos):
                         print("Start button clicked")
                         pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+                        check_and_update_stage(id)
                         stage_select_menu(profile,id)
                     elif profile_button_rect.collidepoint(mouse_pos):
                         print("Profile button clicked")

@@ -14,7 +14,7 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
-def start_game():  # Accept user_id as an argument
+def start_game(stage_names, id):  # Accept user_id as an argument
     # Database connection
     conn = pymysql.connect(
         host='localhost',
@@ -97,7 +97,7 @@ def start_game():  # Accept user_id as an argument
 
     def draw_init():
         screen.blit(background_img, (0, 0))
-        draw_text(screen, 'Stage 1', 64, WIDTH / 2, HEIGHT / 4)
+        draw_text(screen, stage_names, 64, WIDTH / 2, HEIGHT / 4)
         draw_text(screen, '← →to move and spacebar to shoot~', 22, WIDTH / 2, HEIGHT / 2)
         draw_text(screen, 'Start the game by pressing any key', 18, WIDTH / 2, HEIGHT * 3 / 4)
         pygame.display.update()
@@ -113,7 +113,10 @@ def start_game():  # Accept user_id as an argument
                     return False
 
     def ask_question():
-        my_cursor.execute("SELECT `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `a1`, `a2`, `a3`, `a4`, `a5`, `a6`, `a7`, `a8`, `a9`, `a10` FROM `stage1_q`  ORDER BY RAND() LIMIT 1")
+        table_name = f"{stage_names}_q"  # Construct the table name
+        query = f"SELECT `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `a1`, `a2`, `a3`, `a4`, `a5`, `a6`, `a7`, `a8`, `a9`, `a10` FROM `{table_name}` ORDER BY RAND() LIMIT 1"
+        my_cursor.execute(query)
+
         result = my_cursor.fetchone()
 
         if result:
@@ -121,6 +124,7 @@ def start_game():  # Accept user_id as an argument
             answers = result[10:]
             question = random.choice(questions)
             answer = answers[questions.index(question)]
+            
         else:
             return False, False
         
@@ -454,22 +458,25 @@ def start_game():  # Accept user_id as an argument
 
         if player.lives == 0 and not (death_expl and death_expl.alive()):
             result = draw_score_page(score)
+
+            # Insert score into the database
+            sql = f"UPDATE `stage` SET `{stage_names}` = %s WHERE `id` = %s"
+            values = (score, id)  # Include the id in the values tuple
+            
+            my_cursor.execute(sql, values)
+            conn.commit()
+            print("Score saved to database.")
+            
+
             if result == 'quit':
-                
-                return score
+                # Close the connection
+                conn.close()
+                return
             elif result == 'restart':
                 show_init = True
                 death_expl = None  # Reset death_expl for a new game
 
-            # Insert score into the database
-            sql = "UPDATE `stage` SET `stage1` = %s WHERE `id` = %s"
-            values = (score)
-            try:
-                my_cursor.execute(sql, values)
-                conn.commit()
-                print("Score saved to database.")
-            except Exception as e:
-                print(f"Failed to save score to database: {e}")
+            
 
         # Draw/display
         screen.fill(BLACK)
