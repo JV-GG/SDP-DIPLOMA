@@ -395,7 +395,7 @@ def start_game():  # Accept user_id as an argument
             new_rock()
 
         #Check if the score have reach the limit
-        if score >= 99:
+        if score >= 9999:
             screen.blit(background_img, (0, 0))
             draw_text(screen, "Congratulations! You've reached 9999 points!", 48, WIDTH / 2, HEIGHT / 4)
             draw_text(screen, "Press C to Continue or Q to Return to Homepage", 22, WIDTH / 2, HEIGHT / 2)

@@ -711,6 +711,7 @@ def stage_select_menu(profile,id):
                                 print(f'Stage {i+1}')
                                 message = f"Stage {i+1}"
                                 message_color = green
+                                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
                                 from stage1 import start_game
                                 start_game()
                             elif texts[i] == 'Soon':
@@ -1766,7 +1767,15 @@ def main_menu():
                                     my_cursor.execute(query, (receiver_email,))
                                     result = my_cursor.fetchone()
                                     id_2 = result[0]
-                                    query_2 = f"INSERT INTO `stage`(`id`, `stage1`) VALUES ('{id_2}', 0)"
+                                    # Query to get column names
+                                    my_cursor.execute("SHOW COLUMNS FROM stage")
+                                    columns = my_cursor.fetchall()
+
+                                    # Assuming `columns[1][0]` will give you the name of the second column
+                                    second_column_name = columns[1][0]
+
+                                    # Insert the value 0 into the second column
+                                    query_2 = f"INSERT INTO `stage` (`id`, `{second_column_name}`) VALUES ('{id_2}', 0)"
                                     my_cursor.execute(query_2)
                                     conn.commit()
                                 else:
