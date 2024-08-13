@@ -58,7 +58,7 @@ CREATE TABLE `stage` (
 --
 
 INSERT INTO `stage` (`id`, `stage1`) VALUES
-(2, NULL);
+(2, 0);
 
 -- --------------------------------------------------------
 

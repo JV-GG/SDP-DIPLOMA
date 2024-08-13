@@ -650,33 +650,36 @@ def stage_select_menu(profile,id):
     block_width = 150
     block_height = 150
 
+    # Get stage scores from the database
+    scores = get_stage_scores(id)
+            
+    # Fetch column names from the `stage` table excluding 'id'
+    query = "SHOW COLUMNS FROM `stage` WHERE Field != 'id'"
+    my_cursor.execute(query)
+    columns = my_cursor.fetchall()
+    stage_names = [col[0] for col in columns] + ['Soon']  # Ensure 'Edit' is always last
+
     # Define block positions
-    blocks = []
-    rows = 3
+    num_stages = len(stage_names)
+    rows = (num_stages // 3) + (1 if num_stages % 3 != 0 else 0)  # Calculate rows based on the number of stages
     cols = 3
 
     # Calculate padding
     padding_x = (screen.get_width() - (cols * block_width)) // (cols + 1)
     padding_y = (screen.get_height() - (rows * block_height)) // (rows + 5)
 
+    blocks = []
     for row in range(rows):
         for col in range(cols):
             x = padding_x + col * (block_width + padding_x)
             y = padding_y + row * (block_height + padding_y) + 120
-            blocks.append(pygame.Rect(x, y, block_width, block_height))
+            if len(blocks) < num_stages:  # Only create blocks for available stage names
+                blocks.append(pygame.Rect(x, y, block_width, block_height))
 
-    # Prepare texts for each stage
-    texts = [f'Stage {i+1}' for i in range(8)] + ['Soon']
-
-    # Get stage scores from the database
-    scores = get_stage_scores(id)
-
-    print(f"Scores: {scores}")
-
-    # Render text onto each image
+    # Prepare stage images
     stage_images = []
-
-    for i, text in enumerate(texts):
+    for i in range(num_stages):
+        text = stage_names[i]
         img = stage_image.copy()
 
         # Add score text if scores is not None and there is a corresponding score
@@ -689,7 +692,6 @@ def stage_select_menu(profile,id):
             # Use stage_image2 if scores is None or the score for this stage is None
             img.blit(stage_image2, (0, 0))
 
-        
         text_surface = stage_font.render(text, True, black)
         text_rect = text_surface.get_rect(center=(block_width // 2, block_height // 2))
         img.blit(text_surface, text_rect)
@@ -706,15 +708,15 @@ def stage_select_menu(profile,id):
                 mouse_pos = event.pos
                 for i, block in enumerate(blocks):
                     if block.collidepoint(mouse_pos):
-                        if i < len(texts):
-                            if texts[i] != 'Soon' and scores is not None and scores[i] is not None:
-                                print(f'Stage {i+1}')
-                                message = f"Stage {i+1}"
+                        if i < len(stage_names):
+                            if stage_names[i] != 'Soon' and scores is not None and scores[i] is not None:
+                                print(stage_names[i])
+                                message = stage_names[i]
                                 message_color = green
                                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
                                 from stage1 import start_game
                                 start_game()
-                            elif texts[i] == 'Soon':
+                            elif stage_names[i] == 'Soon':
                                 print('Coming Soon')
                                 message = "Coming Soon"
                                 message_color = red
