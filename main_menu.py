@@ -772,6 +772,15 @@ def stage_select_menu(profile,id):
         pygame.display.flip()
 
 def check_and_update_stage(id):
+    
+    conn = pymysql.connect(
+    host='localhost',
+    user='root',
+    password='',
+    database='sdp'
+)
+    my_cursor = conn.cursor()
+
     # Query to fetch all stage columns for the given ID
     query = "SELECT * FROM `score` WHERE `id` = %s"
     my_cursor.execute(query, (id,))
@@ -779,15 +788,20 @@ def check_and_update_stage(id):
 
     if result:
         columns = my_cursor.description
+        
+        # Check if there are any zero values
         for i in range(1, len(result)):
-            if result[i] is None :
-                # Update the first column with a NULL value to 0
+            if result[i] == 0:
+                return
+        
+        # If no zeros are found, update any NULL value to 0
+        for i in range(1, len(result)):
+            if result[i] is None:
                 column_name = columns[i][0]
                 update_query = f"UPDATE `score` SET `{column_name}` = 0 WHERE `id` = %s"
                 my_cursor.execute(update_query, (id,))
-                
                 conn.commit()
-                break
+                return
 
 def stage_select_menu_admin(profile, id):
     scroll = 0
