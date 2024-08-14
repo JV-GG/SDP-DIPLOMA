@@ -22,6 +22,7 @@ green = (0, 255, 0)
 red = (255, 0, 0)
 
 # Load font
+font_small = pygame.font.Font('font/Minecraft.ttf', 18)
 custom_font1 = pygame.font.Font('font/Minecraft.ttf', 40)
 custom_font1_small = pygame.font.Font('font/Minecraft.ttf', 37)
 custom_font_smallest = pygame.font.Font('font/Minecraft.ttf', 15)
@@ -252,7 +253,7 @@ def send_password_email(name_otp, password_otp, receiver_email):
     
 # Function to check login credentials
 def check_login(email, password):
-    query = "SELECT * FROM USER WHERE email=%s AND password=%s"
+    query = "SELECT * FROM player WHERE email=%s AND password=%s"
     my_cursor.execute(query, (email, password))
     result = my_cursor.fetchone()
     return result is not None
@@ -267,7 +268,7 @@ def check_login_admin(email, password):
 # Function to register new user
 def register_user(username, age, email, password):
     try:
-        query = "INSERT INTO USER (nickname, age, email, password) VALUES (%s, %s, %s, %s)"
+        query = "INSERT INTO player (nickname, age, email, password) VALUES (%s, %s, %s, %s)"
         my_cursor.execute(query, (username, age, email, password))
         conn.commit()
         return True
@@ -615,12 +616,12 @@ def get_stage_scores(id):
     )
     my_cursor = conn.cursor()
 
-    my_cursor.execute("SHOW COLUMNS FROM `stage`")
+    my_cursor.execute("SHOW COLUMNS FROM `score`")
     columns = [column[0] for column in my_cursor.fetchall() if column[0] != 'id']
     
     
     columns_to_select = ', '.join(columns)
-    query = f"SELECT {columns_to_select} FROM `stage` WHERE id = %s"
+    query = f"SELECT {columns_to_select} FROM `score` WHERE id = %s"
     
     # Step 3: Execute the query
     my_cursor.execute(query, (id,))
@@ -661,8 +662,8 @@ def stage_select_menu(profile,id):
     check_and_update_stage(id)
     scores = get_stage_scores(id)
             
-    # Fetch column names from the `stage` table excluding 'id'
-    query = "SHOW COLUMNS FROM `stage` WHERE Field != 'id'"
+    # Fetch column names from the `score` table excluding 'id'
+    query = "SHOW COLUMNS FROM `score` WHERE Field != 'id'"
     my_cursor.execute(query)
     columns = my_cursor.fetchall()
     stage_names = [col[0] for col in columns] + ['Soon']  # Ensure 'Edit' is always last
@@ -772,20 +773,19 @@ def stage_select_menu(profile,id):
 
 def check_and_update_stage(id):
     # Query to fetch all stage columns for the given ID
-    query = "SELECT * FROM `stage` WHERE `id` = %s"
+    query = "SELECT * FROM `score` WHERE `id` = %s"
     my_cursor.execute(query, (id,))
     result = my_cursor.fetchone()
 
     if result:
         columns = my_cursor.description
         for i in range(1, len(result)):
-            if result[i] == 0 :
-                break
-            elif result[i] is None :
-                # Update the first column with a NULL or negative value to 0
+            if result[i] is None :
+                # Update the first column with a NULL value to 0
                 column_name = columns[i][0]
-                update_query = f"UPDATE `stage` SET `{column_name}` = 0 WHERE `id` = %s"
+                update_query = f"UPDATE `score` SET `{column_name}` = 0 WHERE `id` = %s"
                 my_cursor.execute(update_query, (id,))
+                
                 conn.commit()
                 break
 
@@ -806,8 +806,8 @@ def stage_select_menu_admin(profile, id):
     block_width = 150
     block_height = 150
 
-    # Fetch column names from the `stage` table excluding 'id'
-    query = "SHOW COLUMNS FROM `stage` WHERE Field != 'id'"
+    # Fetch column names from the `score` table excluding 'id'
+    query = "SHOW COLUMNS FROM `score` WHERE Field != 'id'"
     my_cursor.execute(query)
     columns = my_cursor.fetchall()
     stage_names = [col[0] for col in columns] + ['Edit']  # Ensure 'Edit' is always last
@@ -859,12 +859,18 @@ def stage_select_menu_admin(profile, id):
                                 print('Edit Stage button clicked.')
                                 message = "Edit stage"
                                 message_color = red
+                                if message:
+                                    message_display(message, 24, screen_width // 2, 900, message_color)
+                                    time.sleep(0.5)
                                 admin_stage_menu(profile, id)
                             else:
                                 print(stage_names[i])
                                 message = stage_names[i]
                                 message_color = green
                                 selected_stage = stage_names[i]
+                                if message:
+                                    message_display(message, 24, screen_width // 2, 900, message_color)
+                                    time.sleep(0.5)
                                 add_questions_to_stage(profile, id, selected_stage)
 
                 if back_button_rect.collidepoint(event.pos):
@@ -886,8 +892,7 @@ def stage_select_menu_admin(profile, id):
             if i < len(blocks):
                 screen.blit(stage_images[i], blocks[i])
 
-        if message:
-            message_display(message, 24, screen_width // 2, 900, message_color)
+        
 
         mouse_pos = pygame.mouse.get_pos()
         cursor_set = False
@@ -913,8 +918,8 @@ def admin_stage_menu(profile, id):
     input_box_image = pygame.image.load(input_image_path).convert_alpha()
     input_box_image = pygame.transform.scale(input_box_image, (300, 60))
 
-    # Fetch column names from the `stage` table
-    my_cursor.execute("SHOW COLUMNS FROM stage")
+    # Fetch column names from the `score` table
+    my_cursor.execute("SHOW COLUMNS FROM score")
     columns = my_cursor.fetchall()
     stages = [col[0] for col in columns if col[0] != 'id']
     
@@ -953,30 +958,12 @@ def admin_stage_menu(profile, id):
                 if add_stage_button_rect.collidepoint(mouse_pos):
                     if new_stage_name:
                         try:
-                            query = f"ALTER TABLE stage ADD COLUMN `{new_stage_name}` INT DEFAULT NULL"
+                            query = f"ALTER TABLE score ADD COLUMN `{new_stage_name}` INT DEFAULT NULL"
                             my_cursor.execute(query)
-                            
-                            # Create a new table with columns q1 to q10 as long strings
-                            query_create_table = f"""
-                            CREATE TABLE `{new_stage_name}_q` (
-                                    id INT PRIMARY KEY AUTO_INCREMENT, 
-                                    q1 TEXT, q2 TEXT, 
-                                    q3 TEXT, q4 TEXT, 
-                                    q5 TEXT, q6 TEXT, 
-                                    q7 TEXT, q8 TEXT, 
-                                    q9 TEXT, q10 TEXT, 
-                                    a1 TEXT, a2 TEXT, 
-                                    a3 TEXT, a4 TEXT, 
-                                    a5 TEXT, a6 TEXT, 
-                                    a7 TEXT, a8 TEXT, 
-                                    a9 TEXT, a10 TEXT
-                                )
-                            """
-                            my_cursor.execute(query_create_table)
 
                             query_insert_null = f"""
-                            INSERT INTO `{new_stage_name}_q` (q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
-                            VALUES ("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                            INSERT INTO `stage` (stage_name, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10)
+                            VALUES ("{new_stage_name}","", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
                             """
                             my_cursor.execute(query_insert_null)
 
@@ -993,12 +980,12 @@ def admin_stage_menu(profile, id):
                 elif remove_stage_button_rect.collidepoint(mouse_pos):
                     if selected_stage:
                         try:
-                            query = f"ALTER TABLE stage DROP COLUMN `{selected_stage}`"
+                            query = f"ALTER TABLE score DROP COLUMN `{selected_stage}`"
                             my_cursor.execute(query)
 
-                            # Drop the associated table for the stage
-                            query_drop_table = f"DROP TABLE IF EXISTS `{selected_stage}_q`"
-                            my_cursor.execute(query_drop_table)
+                            # Delete the row where the `stage_name` matches `selected_stage`
+                            query_delete_row = f"DELETE FROM `stage` WHERE `stage_name` = %s"
+                            my_cursor.execute(query_delete_row, (selected_stage,))
                             conn.commit()
                             
                             message = f"Stage '{selected_stage}' removed!"
@@ -1033,7 +1020,7 @@ def admin_stage_menu(profile, id):
                 elif event.key == pygame.K_RETURN:
                     if new_stage_name:
                         try:
-                            query = f"ALTER TABLE stage ADD COLUMN `{new_stage_name}` INT DEFAULT NULL"
+                            query = f"ALTER TABLE score ADD COLUMN `{new_stage_name}` INT DEFAULT NULL"
                             my_cursor.execute(query)
                             conn.commit()
                             message = f"Stage '{new_stage_name}' added!"
@@ -1118,21 +1105,23 @@ def add_questions_to_stage(profile, id, selected_stage):
 
     active_input = None
 
-    # Define button rectangles
-    save_button_rect = pygame.Rect(screen_width // 2 - 150, screen_height - 100, 150, 50)
-    back_button_rect = pygame.Rect(screen_width // 2, screen_height - 100, 150, 50)
+    # Assuming quit_button_image has a specific size (replace with actual dimensions if known)
+    button_width = quit_button_image.get_width()
+    button_height = quit_button_image.get_height()
+
+    # Create save_button_rect with the same dimensions as quit_button_image
+    save_button_rect = pygame.Rect(screen_width - 220, screen_height - 60, button_width, button_height)
 
     # Fetch existing questions and answers from the database
     existing_data = fetch_existing_data(selected_stage)
     if existing_data:
-        questions = existing_data[:10]
-        answers = existing_data[10:]
+        questions = list(existing_data[:10])  # Convert to list for mutable operations
+        answers = list(existing_data[10:])    # Convert to list for mutable operations
 
     running = True
 
     while running:
-        
-
+        cursor_over_input = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -1194,41 +1183,47 @@ def add_questions_to_stage(profile, id, selected_stage):
             label_surface = stage_font.render(f'A{i+1}: {answers[i]}', True, black)
             label_rect = label_surface.get_rect(center=rect.center)
             screen.blit(label_surface, label_rect)
-
+        
         # Draw buttons
-        pygame.draw.rect(screen, green, save_button_rect)
-        pygame.draw.rect(screen, red, back_button_rect)
-
-        save_text = stage_font.render('Save', True, white)
-        back_text = stage_font.render('Back', True, white)
+        screen.blit(quit_button_image, save_button_rect)
+        screen.blit(back_button_image, back_button_rect)
+        draw_text("Save", font_small, black, save_button_rect.centerx, save_button_rect.centery)
         
-        screen.blit(save_text, save_button_rect.move(10, 10))
-        screen.blit(back_text, back_button_rect.move(10, 10))
-
+        cursor_pos = pygame.mouse.get_pos()
+        cursor_over_input = any(
+            rect.collidepoint(cursor_pos) for rect in question_input_rects
+        ) or any(
+            rect.collidepoint(cursor_pos) for rect in answer_input_rects
+        ) or save_button_rect.collidepoint(cursor_pos) \
+        or back_button_rect.collidepoint(cursor_pos)
+        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND if cursor_over_input else pygame.SYSTEM_CURSOR_ARROW)
         
-            
-
         pygame.display.flip()
 
 def fetch_existing_data(stage_name):
-    query = f"SELECT * FROM `{stage_name}_q` LIMIT 1"
-    my_cursor.execute(query)
+    query = f"""
+        SELECT q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, 
+               a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 
+        FROM `stage` 
+        WHERE `stage_name` = %s
+        LIMIT 1
+    """
+    my_cursor.execute(query, (stage_name,))
     result = my_cursor.fetchone()
     if result:
-        return list(result[1:])  # Skip the ID column
+        return result
     return None
 
 def save_questions_to_database(selected_stage, questions, answers):
-    query = f"""
-    UPDATE `{selected_stage}_q` 
+    # Update the corresponding row in the `stage` table
+    query_update_stage = f"""
+    UPDATE `stage` 
     SET q1 = %s, q2 = %s, q3 = %s, q4 = %s, q5 = %s, q6 = %s, q7 = %s, q8 = %s, q9 = %s, q10 = %s, 
         a1 = %s, a2 = %s, a3 = %s, a4 = %s, a5 = %s, a6 = %s, a7 = %s, a8 = %s, a9 = %s, a10 = %s
-    WHERE id = (
-        SELECT MIN(id) FROM `{selected_stage}_q`
-    )
+    WHERE stage_name = %s
     """
-    data = tuple(questions + answers)
-    my_cursor.execute(query, data)
+    data_update_stage = tuple(questions + answers) + (selected_stage,)
+    my_cursor.execute(query_update_stage, data_update_stage)
     conn.commit()
 
 def about_us(profile,id):
@@ -1286,11 +1281,6 @@ def about_us(profile,id):
         pygame.display.flip()
 
 def start_menu(profile,id):
-    
-    # Define fonts
-    #font_medium = pygame.font.Font(custom_font1_big, 52)
-    font_small = pygame.font.Font('font/Minecraft.ttf', 18)
-
     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
     scroll = 0
     running = True
@@ -1489,7 +1479,7 @@ def start_menu_admin(profile,id):
 
 
 def check_forget_email(email):
-    query = "SELECT nickname, password FROM user WHERE email = %s"
+    query = "SELECT nickname, password FROM player WHERE email = %s"
     my_cursor.execute(query, (email,))
     result = my_cursor.fetchone()
     if result:
@@ -1708,7 +1698,7 @@ def main_menu():
                                 login_message = "Login Successful!"
                                 login_message_color = green
                                 profile = email
-                                query = "SELECT id FROM user WHERE email = %s"
+                                query = "SELECT id FROM player WHERE email = %s"
                                 my_cursor.execute(query, (profile,))
                                 result = my_cursor.fetchone()
                                 if result:
@@ -1719,7 +1709,7 @@ def main_menu():
                                 if login_message:
                                     message_display(login_message, 24, screen_width // 2, 750, login_message_color)
                                     pygame.display.flip
-                                    time.sleep(0.5)
+                                    time.sleep(1)
                                     start_menu(profile,id)
                                     
                             else:
@@ -1754,7 +1744,7 @@ def main_menu():
                                 if login_message:
                                     message_display(login_message, 24, screen_width // 2, 750, login_message_color)
                                     pygame.display.flip
-                                    time.sleep(0.5)
+                                    time.sleep(1)
                                     start_menu_admin(profile,id)
                                     
                             else:
@@ -1782,7 +1772,7 @@ def main_menu():
                         
                         # Check if all fields are filled
                         if all(responses.values()):
-                            # Validate user input
+                            # Validate player input
                             valid, message = validate_user_input(responses["New Username"], responses["Age"], responses["Email"], responses["Password"])
                             
                             if valid:
@@ -1794,19 +1784,19 @@ def main_menu():
                                     
                                     login_message = "Registration Successful! Login your account to play."
                                     login_message_color = green
-                                    query = "SELECT id FROM user WHERE email = %s"
+                                    query = "SELECT id FROM player WHERE email = %s"
                                     my_cursor.execute(query, (receiver_email,))
                                     result = my_cursor.fetchone()
                                     id_2 = result[0]
                                     # Query to get column names
-                                    my_cursor.execute("SHOW COLUMNS FROM stage")
+                                    my_cursor.execute("SHOW COLUMNS FROM score")
                                     columns = my_cursor.fetchall()
 
                                     # Assuming `columns[1][0]` will give you the name of the second column
                                     second_column_name = columns[1][0]
 
                                     # Insert the value 0 into the second column
-                                    query_2 = f"INSERT INTO `stage` (`id`, `{second_column_name}`) VALUES ('{id_2}', 0)"
+                                    query_2 = f"INSERT INTO `score` (`id`, `{second_column_name}`) VALUES ('{id_2}', null)"
                                     my_cursor.execute(query_2)
                                     conn.commit()
                                 else:
@@ -1831,7 +1821,7 @@ def main_menu():
                         
                         # Check if all fields are filled
                         if all(responses.values()):
-                            # Validate user input
+                            # Validate admin input
                             valid, message = validate_admin_input(responses["New Username"], responses["Age"], responses["Email"], responses["Password"], responses["Admin Code"])
                             
                             if valid:
@@ -1952,8 +1942,8 @@ def profile_management(profile,id):
     # Define fonts
     font_small = pygame.font.Font('font/Minecraft.ttf', 18)
 
-    # Fetch user data from the database
-    query = "SELECT id, nickname, age, password FROM user WHERE email = %s"
+    # Fetch player data from the database
+    query = "SELECT id, nickname, age, password FROM player WHERE email = %s"
     my_cursor.execute(query, (profile,))
     user_data = my_cursor.fetchone()
     if user_data:
@@ -2008,14 +1998,14 @@ def profile_management(profile,id):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
                 if save_button_rect.collidepoint(mouse_pos):
-                    # Save the updated user data to the database
+                    # Save the updated player data to the database
                     new_data = (
                         input_boxes["nickname"],
                         int(input_boxes["age"]),
                         input_boxes["password"],
                         profile
                     )
-                    query = "UPDATE user SET nickname = %s, age = %s, password = %s WHERE email = %s"
+                    query = "UPDATE player SET nickname = %s, age = %s, password = %s WHERE email = %s"
                     my_cursor.execute(query, new_data)
                     conn.commit()
                     message = "Profile Updated Successfully!"
@@ -2126,7 +2116,7 @@ def profile_management_admin(profile,id):
     # Define fonts
     font_small = pygame.font.Font('font/Minecraft.ttf', 18)
 
-    # Fetch user data from the database
+    # Fetch admin data from the database
     query = "SELECT id, nickname, age, password FROM admin WHERE email = %s"
     my_cursor.execute(query, (profile,))
     user_data = my_cursor.fetchone()
@@ -2182,7 +2172,7 @@ def profile_management_admin(profile,id):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
                 if save_button_rect.collidepoint(mouse_pos):
-                    # Save the updated user data to the database
+                    # Save the updated admin data to the database
                     new_data = (
                         input_boxes["nickname"],
                         int(input_boxes["age"]),

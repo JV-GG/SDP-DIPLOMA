@@ -113,9 +113,15 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                     return False
 
     def ask_question():
-        table_name = f"{stage_names}_q"  # Construct the table name
-        query = f"SELECT `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `a1`, `a2`, `a3`, `a4`, `a5`, `a6`, `a7`, `a8`, `a9`, `a10` FROM `{table_name}` ORDER BY RAND() LIMIT 1"
-        my_cursor.execute(query)
+        query = f"""
+            SELECT q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, 
+                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10 
+            FROM `stage` 
+            WHERE `stage_name` = %s
+            ORDER BY RAND() 
+            LIMIT 1
+        """        
+        my_cursor.execute(query,({stage_names}))
 
         result = my_cursor.fetchone()
 
@@ -460,7 +466,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
             result = draw_score_page(score)
 
             # Insert score into the database
-            sql = f"UPDATE `stage` SET `{stage_names}` = %s WHERE `id` = %s"
+            sql = f"UPDATE `score` SET `{stage_names}` = %s WHERE `id` = %s"
             values = (score, id)  # Include the id in the values tuple
             
             my_cursor.execute(sql, values)

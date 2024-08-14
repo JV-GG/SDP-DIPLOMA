@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 13, 2024 at 05:57 PM
+-- Generation Time: Aug 14, 2024 at 06:47 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,141 +45,10 @@ INSERT INTO `admin` (`id`, `nickname`, `age`, `email`, `password`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `stage`
+-- Table structure for table `player`
 --
 
-CREATE TABLE `stage` (
-  `id` int(11) NOT NULL,
-  `stage1` int(11) DEFAULT NULL,
-  `stage2` int(11) DEFAULT NULL,
-  `stage3` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `stage`
---
-
-INSERT INTO `stage` (`id`, `stage1`, `stage2`, `stage3`) VALUES
-(2, 0, NULL, NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `stage1_q`
---
-
-CREATE TABLE `stage1_q` (
-  `id` int(11) NOT NULL,
-  `q1` text DEFAULT NULL,
-  `q2` text DEFAULT NULL,
-  `q3` text DEFAULT NULL,
-  `q4` text DEFAULT NULL,
-  `q5` text DEFAULT NULL,
-  `q6` text DEFAULT NULL,
-  `q7` text DEFAULT NULL,
-  `q8` text DEFAULT NULL,
-  `q9` text DEFAULT NULL,
-  `q10` text DEFAULT NULL,
-  `a1` text DEFAULT NULL,
-  `a2` text DEFAULT NULL,
-  `a3` text DEFAULT NULL,
-  `a4` text DEFAULT NULL,
-  `a5` text DEFAULT NULL,
-  `a6` text DEFAULT NULL,
-  `a7` text DEFAULT NULL,
-  `a8` text DEFAULT NULL,
-  `a9` text DEFAULT NULL,
-  `a10` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `stage1_q`
---
-
-INSERT INTO `stage1_q` (`id`, `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `a1`, `a2`, `a3`, `a4`, `a5`, `a6`, `a7`, `a8`, `a9`, `a10`) VALUES
-(2, '3 + 4 = ?', '9 - 5 = ?', '2 * 6 = ?', '8 / 2 = ?', '5 + 7 = ?', '6 - 3 = ?', '3 * 5 = ?', '9 / 3 = ?', '7 + 2 = ?', '4 * 2 = ?', '7', '4', '12', '4', '12', '3', '15', '3', '9', '8');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `stage2_q`
---
-
-CREATE TABLE `stage2_q` (
-  `id` int(11) NOT NULL,
-  `q1` text DEFAULT NULL,
-  `q2` text DEFAULT NULL,
-  `q3` text DEFAULT NULL,
-  `q4` text DEFAULT NULL,
-  `q5` text DEFAULT NULL,
-  `q6` text DEFAULT NULL,
-  `q7` text DEFAULT NULL,
-  `q8` text DEFAULT NULL,
-  `q9` text DEFAULT NULL,
-  `q10` text DEFAULT NULL,
-  `a1` text DEFAULT NULL,
-  `a2` text DEFAULT NULL,
-  `a3` text DEFAULT NULL,
-  `a4` text DEFAULT NULL,
-  `a5` text DEFAULT NULL,
-  `a6` text DEFAULT NULL,
-  `a7` text DEFAULT NULL,
-  `a8` text DEFAULT NULL,
-  `a9` text DEFAULT NULL,
-  `a10` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `stage2_q`
---
-
-INSERT INTO `stage2_q` (`id`, `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `a1`, `a2`, `a3`, `a4`, `a5`, `a6`, `a7`, `a8`, `a9`, `a10`) VALUES
-(2, '10 - 3 = ?', '4 + 6 = ?', '8 * 1 = ?', '16 / 2 = ?', '7 + 5 = ?', '15 - 7 = ?', '6 * 2 = ?', '18 / 3 = ?', '11 - 4 = ?', '5 * 3 = ?', '7', '10', '8', '8', '12', '8', '12', '6', '7', '15');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `stage3_q`
---
-
-CREATE TABLE `stage3_q` (
-  `id` int(11) NOT NULL,
-  `q1` text DEFAULT NULL,
-  `q2` text DEFAULT NULL,
-  `q3` text DEFAULT NULL,
-  `q4` text DEFAULT NULL,
-  `q5` text DEFAULT NULL,
-  `q6` text DEFAULT NULL,
-  `q7` text DEFAULT NULL,
-  `q8` text DEFAULT NULL,
-  `q9` text DEFAULT NULL,
-  `q10` text DEFAULT NULL,
-  `a1` text DEFAULT NULL,
-  `a2` text DEFAULT NULL,
-  `a3` text DEFAULT NULL,
-  `a4` text DEFAULT NULL,
-  `a5` text DEFAULT NULL,
-  `a6` text DEFAULT NULL,
-  `a7` text DEFAULT NULL,
-  `a8` text DEFAULT NULL,
-  `a9` text DEFAULT NULL,
-  `a10` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `stage3_q`
---
-
-INSERT INTO `stage3_q` (`id`, `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `a1`, `a2`, `a3`, `a4`, `a5`, `a6`, `a7`, `a8`, `a9`, `a10`) VALUES
-(1, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user`
---
-
-CREATE TABLE `user` (
+CREATE TABLE `player` (
   `id` int(11) NOT NULL,
   `nickname` varchar(50) NOT NULL,
   `age` int(2) NOT NULL,
@@ -188,11 +57,71 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `user`
+-- Dumping data for table `player`
 --
 
-INSERT INTO `user` (`id`, `nickname`, `age`, `email`, `password`) VALUES
+INSERT INTO `player` (`id`, `nickname`, `age`, `email`, `password`) VALUES
 (2, 'booo888', 11, '1@gmail.com', '1');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `score`
+--
+
+CREATE TABLE `score` (
+  `id` int(11) NOT NULL,
+  `stage1` int(11) DEFAULT NULL,
+  `stage2` int(11) DEFAULT NULL,
+  `stage3` int(11) DEFAULT NULL,
+  `stage4` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `score`
+--
+
+INSERT INTO `score` (`id`, `stage1`, `stage2`, `stage3`, `stage4`) VALUES
+(2, NULL, NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stage`
+--
+
+CREATE TABLE `stage` (
+  `id` int(11) NOT NULL,
+  `stage_name` varchar(255) DEFAULT NULL,
+  `q1` text DEFAULT NULL,
+  `q2` text DEFAULT NULL,
+  `q3` text DEFAULT NULL,
+  `q4` text DEFAULT NULL,
+  `q5` text DEFAULT NULL,
+  `q6` text DEFAULT NULL,
+  `q7` text DEFAULT NULL,
+  `q8` text DEFAULT NULL,
+  `q9` text DEFAULT NULL,
+  `q10` text DEFAULT NULL,
+  `a1` text DEFAULT NULL,
+  `a2` text DEFAULT NULL,
+  `a3` text DEFAULT NULL,
+  `a4` text DEFAULT NULL,
+  `a5` text DEFAULT NULL,
+  `a6` text DEFAULT NULL,
+  `a7` text DEFAULT NULL,
+  `a8` text DEFAULT NULL,
+  `a9` text DEFAULT NULL,
+  `a10` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `stage`
+--
+
+INSERT INTO `stage` (`id`, `stage_name`, `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `q10`, `a1`, `a2`, `a3`, `a4`, `a5`, `a6`, `a7`, `a8`, `a9`, `a10`) VALUES
+(2, 'stage1', '3 + 4 = ?', '9 - 5 = ?', '2 * 6 = ?', '8 / 2 = ?', '5 + 7 = ?', '6 - 3 = ?', '3 * 5 = ?', '9 / 3 = ?', '7 + 2 = ?', '4 * 2 = ?', '7', '4', '12', '4', '12', '3', '15', '3', '9', '8'),
+(3, 'stage2', 'hi how are you', '', '', '', '', '', '', '', '', '', 'i am fine', '', '', '', '', '', '', '', '', '');
 
 --
 -- Indexes for dumped tables
@@ -206,35 +135,23 @@ ALTER TABLE `admin`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `player`
+--
+ALTER TABLE `player`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `score`
+--
+ALTER TABLE `score`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `stage`
 --
 ALTER TABLE `stage`
   ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `stage1_q`
---
-ALTER TABLE `stage1_q`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `stage2_q`
---
-ALTER TABLE `stage2_q`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `stage3_q`
---
-ALTER TABLE `stage3_q`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `user`
---
-ALTER TABLE `user`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -247,38 +164,26 @@ ALTER TABLE `admin`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `stage1_q`
+-- AUTO_INCREMENT for table `player`
 --
-ALTER TABLE `stage1_q`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+ALTER TABLE `player`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT for table `stage2_q`
+-- AUTO_INCREMENT for table `stage`
 --
-ALTER TABLE `stage2_q`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `stage3_q`
---
-ALTER TABLE `stage3_q`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `user`
---
-ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+ALTER TABLE `stage`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `stage`
+-- Constraints for table `score`
 --
-ALTER TABLE `stage`
-  ADD CONSTRAINT `stage_ibfk_1` FOREIGN KEY (`id`) REFERENCES `user` (`id`);
+ALTER TABLE `score`
+  ADD CONSTRAINT `score_ibfk_1` FOREIGN KEY (`id`) REFERENCES `player` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
