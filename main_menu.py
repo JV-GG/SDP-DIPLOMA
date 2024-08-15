@@ -1059,9 +1059,19 @@ def admin_stage_menu(profile, id):
             blink = not blink
             blink_timer = current_time
             
+        # Load the images for the buttons
+        selected_image = pygame.image.load('jpg\input_2.png')
+        unselected_image = pygame.image.load('jpg\input.png')
+
         for key, rect in stage_buttons.items():
-            button_color = (200, 200, 200) if selected_stage == key else (150, 150, 150)
-            pygame.draw.rect(screen, button_color, rect)
+            # Scale the images to the size of the button
+            button_image = selected_image if selected_stage == key else unselected_image
+            scaled_image = pygame.transform.scale(button_image, (rect.width, rect.height))
+            
+            # Draw the image on the screen
+            screen.blit(scaled_image, rect.topleft)
+            
+            # Draw the label on top of the image
             label_surface = font_small.render(key, True, black)
             label_rect = label_surface.get_rect(center=rect.center)
             screen.blit(label_surface, label_rect)
