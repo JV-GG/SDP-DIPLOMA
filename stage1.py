@@ -28,7 +28,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
     pygame.init()
     pygame.mixer.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Counting Strike Stage 1")
+    pygame.display.set_caption("Counting Strike")
     clock = pygame.time.Clock()
 
     # Load images
@@ -62,7 +62,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
     pygame.mixer.music.load(os.path.join("sound", "background.ogg"))
     pygame.mixer.music.set_volume(0.4)
 
-    font_name = os.path.join("font/font.ttf")
+    font_name = os.path.join("font/Minecraft.ttf")
 
     def draw_text(surf, text, size, x, y, color=BLACK):
         font = pygame.font.Font(font_name, size)

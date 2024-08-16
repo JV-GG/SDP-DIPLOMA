@@ -18,7 +18,7 @@ pygame.display.set_caption('Counting-Strike')
 white = (255, 255, 255)
 black = (0, 0, 0)
 grey = (200, 200, 200)
-green = (0, 255, 0)
+green = (0, 0, 139) #actually is dark blue
 red = (255, 0, 0)
 
 # Load font
