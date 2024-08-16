@@ -52,7 +52,7 @@ login_button_image = pygame.transform.scale(login_button_image, (200, 200))
 register_button_image = pygame.transform.scale(register_button_image, (200, 200))
 
 # Load menu image
-menu_image = pygame.image.load(r'jpg\menu2.png').convert_alpha()
+menu_image = pygame.image.load(r'jpg\mainbackground.png').convert_alpha()
 menu_image = pygame.transform.scale(menu_image, (screen_width, screen_height))
 menu_width = menu_image.get_width()
 
