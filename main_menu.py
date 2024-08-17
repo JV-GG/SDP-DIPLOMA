@@ -4,9 +4,13 @@ import time
 import sys
 import random
 import smtplib
+import os
 
 # Initialize pygame
 pygame.init()
+
+pygame.mixer.music.load(os.path.join("sound", "background.ogg"))
+pygame.mixer.music.set_volume(0.4)
 
 # Screen dimensions
 screen_width = 1920 #1000
@@ -20,6 +24,9 @@ black = (0, 0, 0)
 grey = (200, 200, 200)
 green = (0, 0, 139) #actually is dark blue
 red = (255, 0, 0)
+
+# Load sounds
+click_sound = pygame.mixer.Sound(os.path.join("sound", "click.wav"))
 
 # Load font
 font_small = pygame.font.Font('font/Minecraft.ttf', 18)
@@ -324,6 +331,7 @@ def multi_text_input2(inputs):
                 pygame.quit()
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 for prompt, box in input_boxes.items():
                     if box.collidepoint(event.pos):
                         active_box = prompt
@@ -442,6 +450,7 @@ def multi_text_input(inputs, input_image_path, eye_image_path, eye_closed_image_
                 pygame.quit()
                 exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 for prompt, box in input_boxes.items():
                     if box.collidepoint(event.pos):
                         active_box = prompt
@@ -707,6 +716,8 @@ def stage_select_menu(profile,id):
 
         stage_images.append(img)
 
+    pygame.mixer.music.play(-1)
+
     # Main loop
     running = True
     while running:
@@ -714,6 +725,7 @@ def stage_select_menu(profile,id):
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                click_sound.play()
                 mouse_pos = event.pos
                 for i, block in enumerate(blocks):
                     if block.collidepoint(mouse_pos):
@@ -857,6 +869,7 @@ def stage_select_menu_admin(profile, id):
         img.blit(text_surface, text_rect)
 
         stage_images.append(img)
+        pygame.mixer.music.play(-1)
 
     # Main loop
     running = True
@@ -865,6 +878,7 @@ def stage_select_menu_admin(profile, id):
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                click_sound.play()
                 mouse_pos = event.pos
                 for i, block in enumerate(blocks):
                     if block.collidepoint(mouse_pos):
@@ -959,6 +973,7 @@ def admin_stage_menu(profile, id):
     blink = True
     blink_timer = pygame.time.get_ticks()
     blink_interval = 500
+    pygame.mixer.music.play(-1)
 
     while running:
         cursor_over_input = True
@@ -968,6 +983,7 @@ def admin_stage_menu(profile, id):
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 mouse_pos = event.pos
                 if add_stage_button_rect.collidepoint(mouse_pos):
                     if new_stage_name:
@@ -1142,15 +1158,18 @@ def add_questions_to_stage(profile, id, selected_stage):
         questions = list(existing_data[:10])  # Convert to list for mutable operations
         answers = list(existing_data[10:])    # Convert to list for mutable operations
 
+    pygame.mixer.music.play(-1)
+
     running = True
 
-    while running:
+    while running: 
         cursor_over_input = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 mouse_pos = event.pos
                 if save_button_rect.collidepoint(mouse_pos):
                     message = "Questions and Answers saved"
@@ -1262,14 +1281,17 @@ def about_us(profile,id):
         "Join us in making math both entertaining and educational!"
     ]
     scroll = 0
+    pygame.mixer.music.play(-1)
 
     # Main loop
     running = True
+            
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                click_sound.play()
                 mouse_pos = event.pos
                 if back_button_rect.collidepoint(event.pos):
                     start_menu(profile,id)
@@ -1310,6 +1332,7 @@ def start_menu(profile,id):
     running = True
 
     message = ''
+    pygame.mixer.music.play(-1)
 
     while running:
         # Check for events
@@ -1318,6 +1341,7 @@ def start_menu(profile,id):
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 if event.button == 1:
                     mouse_pos = pygame.mouse.get_pos()
                     # Check if buttons are clicked
@@ -1415,6 +1439,7 @@ def start_menu_admin(profile,id):
     running = True
 
     message = ''
+    pygame.mixer.music.play(-1)
 
     while running:
         # Check for events
@@ -1423,6 +1448,7 @@ def start_menu_admin(profile,id):
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 if event.button == 1:
                     mouse_pos = pygame.mouse.get_pos()
                     # Check if buttons are clicked
@@ -1526,7 +1552,8 @@ def forget_password():
     login_message = ''
     scroll = 0
     
-    
+    pygame.mixer.music.play(-1)
+
     while running:
         clock = pygame.time.Clock()
         clock.tick(60)
@@ -1534,7 +1561,7 @@ def forget_password():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        
+            
         if user == "player":
             inputs = {
                 "Email": (350, 780, 500, 30, 32),
@@ -1613,14 +1640,14 @@ def main_menu2():
     user = ""
     scroll = 0
     
-    
+    pygame.mixer.music.play(-1)
+
     while running:
-        
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 mouse_pos = pygame.mouse.get_pos()
                 # Check if quit button clicked
                 
@@ -1671,6 +1698,15 @@ def main_menu2():
         text_surf, text_rect = text_objects("Quit", custom_font1_small, black)
         text_rect.center = quit_button_rect.center
         screen.blit(text_surf, text_rect)
+
+        # Check if mouse is over buttons to change cursor
+        mouse_pos = pygame.mouse.get_pos()
+        if player_button_rect.collidepoint(mouse_pos) or admin_button_rect.collidepoint(mouse_pos) or quit_button_rect.collidepoint(mouse_pos):
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+        else:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+        
+        pygame.display.flip()
         
         pygame.display.flip()
         
@@ -1687,7 +1723,9 @@ def main_menu():
     scroll = 0
     profile= ''
     
-    
+    pygame.mixer.music.play(-1)
+
+    #Main Loop
     while running:
         clock = pygame.time.Clock()
         clock.tick(60)
@@ -1696,10 +1734,12 @@ def main_menu():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 mouse_pos = pygame.mouse.get_pos()
                 # Check if quit button clicked
                 
                 if quit_button_rect.collidepoint(mouse_pos):
+                    time.sleep(0.5)
                     pygame.quit()
                     sys.exit()
 
@@ -1905,10 +1945,10 @@ def main_menu():
 
         # Check if mouse is over buttons to change cursor
         mouse_pos = pygame.mouse.get_pos()
-        if login_button_rect.collidepoint(mouse_pos) or register_button_rect.collidepoint(mouse_pos):
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)  # Set custom cursor image
+        if login_button_rect.collidepoint(mouse_pos) or register_button_rect.collidepoint(mouse_pos) or quit_button_rect.collidepoint(mouse_pos):
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
         else:
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)  # Set default system arrow cursor
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
         
         pygame.display.flip()
 
@@ -1920,7 +1960,9 @@ def logo_menu():
     logo_y = screen_height // 2
     logo_speed = 1
     scroll = 0
-    
+    pygame.mixer.music.play(-1)
+
+    #Main Loop
     while running:
         clock = pygame.time.Clock()
         clock.tick(60)
@@ -1929,6 +1971,7 @@ def logo_menu():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 main_menu()  # Switch to main menu after click
         
         # Update logo position for floating effect
@@ -2013,6 +2056,9 @@ def profile_management(profile,id):
     message = ''
     cursor_length = 35
     label_spacing = -30
+    pygame.mixer.music.play(-1)
+
+    #Main Loop
     while running:
         cursor_over_input = False  # Flag to check if the cursor is over an input box or button
         for event in pygame.event.get():
@@ -2020,6 +2066,7 @@ def profile_management(profile,id):
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 mouse_pos = event.pos
                 if save_button_rect.collidepoint(mouse_pos):
                     # Save the updated player data to the database
@@ -2187,13 +2234,17 @@ def profile_management_admin(profile,id):
     message = ''
     cursor_length = 35
     label_spacing = -30
-    while running:
+    pygame.mixer.music.play(-1)
+
+    #Main Loop
+    while running: 
         cursor_over_input = False  # Flag to check if the cursor is over an input box or button
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                click_sound.play()
                 mouse_pos = event.pos
                 if save_button_rect.collidepoint(mouse_pos):
                     # Save the updated admin data to the database
