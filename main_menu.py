@@ -307,7 +307,7 @@ def message_display(text, font_size, x, y, color):
     screen.blit(text_surf, text_rect)
     pygame.display.flip()
 
-    # Function to handle multiple text inputs
+# Function to handle multiple text inputs
 def multi_text_input2(inputs):
     
     # Adjust input box dimensions to match button image size
@@ -1275,7 +1275,7 @@ def about_us(profile,id):
         "Counting-Strikes is a captivating 2D game that combines",
         "the excitement of gameplay with the challenge of math.",
         "Developed by a passionate team, KHOO ZHONG HAO, ",
-        "YAP BOON SIONG, KEE WEN FEI, CHEN JUN VOON, IVAN.", #change your name
+        "YAP BOON SIONG, KEE WEN FEI, CHEN JUN VOON, IVAN LAU KAI JUN.",
         "Counting-Strikes offers players an engaging way to improve ",
         "their math skills while enjoying a fun and interactive game.",
         "Join us in making math both entertaining and educational!"
