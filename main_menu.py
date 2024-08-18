@@ -93,7 +93,7 @@ input_image = pygame.transform.scale(input_image, (350, 100))
 input_image2 = pygame.transform.scale(input_image, (400, 50))
 input_image3 = pygame.transform.scale(input_image, (450, 100))
 
-OTP = random.randint(100000,999999)      #generating a randomm 6-digit OTP
+OTP = random.randint(100000,999999)#generating a randomm 6-digit OTP
 
 #setting up server
 server = smtplib.SMTP('smtp.gmail.com',587)
@@ -144,7 +144,7 @@ def otp_code(name_otp, receiver_email):
     scroll = 0
     blink = True
     blink_timer = pygame.time.get_ticks()
-    blink_interval = 500  # Adjust blinking interval as needed
+    blink_interval = 500
     valid_receiver_email = email_verification(receiver_email)
     password = "pckqciqvdvnrebrk"
     server.login("boonmonopoly4@gmail.com", password)
@@ -275,6 +275,7 @@ def check_login_admin(email, password):
 # Function to register new user
 def register_user(username, age, email, password):
     try:
+        #example 16.1
         query = "INSERT INTO player (nickname, age, email, password) VALUES (%s, %s, %s, %s)"
         my_cursor.execute(query, (username, age, email, password))
         conn.commit()
@@ -628,11 +629,9 @@ def get_stage_scores(id):
     my_cursor.execute("SHOW COLUMNS FROM `score`")
     columns = [column[0] for column in my_cursor.fetchall() if column[0] != 'id']
     
-    
     columns_to_select = ', '.join(columns)
     query = f"SELECT {columns_to_select} FROM `score` WHERE id = %s"
     
-    # Step 3: Execute the query
     my_cursor.execute(query, (id,))
     result = my_cursor.fetchone()
 
@@ -671,11 +670,11 @@ def stage_select_menu(profile,id):
     check_and_update_stage(id)
     scores = get_stage_scores(id)
             
-    # Fetch column names from the `score` table excluding 'id'
+    # Fetch column names from the `stage` table excluding 'id'
     query = "SHOW COLUMNS FROM `score` WHERE Field != 'id'"
     my_cursor.execute(query)
     columns = my_cursor.fetchall()
-    stage_names = [col[0] for col in columns] + ['Soon']  # Ensure 'Edit' is always last
+    stage_names = [col[0] for col in columns] + ['Soon']
 
     # Define block positions
     num_stages = len(stage_names)
@@ -2340,7 +2339,7 @@ def profile_management_admin(profile,id):
         draw_text(f"Admin as: {profile}", font_small, black, logged_in_rect.x + 30, logged_in_rect.y + 20, align="left")
 
         # Draw buttons
-        screen.blit(quit_button_image, save_button_rect)  # Use the logout button image for the save button
+        screen.blit(quit_button_image, save_button_rect)
         screen.blit(back_button_image, back_button_rect)
         draw_text("Save", font_small, black, save_button_rect.centerx, save_button_rect.centery)
 
