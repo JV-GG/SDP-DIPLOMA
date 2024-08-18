@@ -1005,7 +1005,7 @@ def admin_stage_menu(profile, id):
                             stage_buttons = {name: pygame.Rect(100, 250 + i * 40, 200, 30) for i, name in enumerate(stages)}
                             new_stage_name = ''
                         except Exception as e:
-                            message = f"Error adding stage: {str(e)}"
+                            message = f"Error adding stage: Duplicate stage name "+new_stage_name
                             message_color = red
                 elif remove_stage_button_rect.collidepoint(mouse_pos):
                     if selected_stage:
