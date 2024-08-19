@@ -52,6 +52,12 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         'shield': pygame.image.load(os.path.join("img", "shield.png")).convert(),
         'gun': pygame.image.load(os.path.join("img", "gun.png")).convert()
     }
+    rock_images = {
+        'tiny': pygame.image.load(os.path.join("img", "rock0.png")),
+        'small': [pygame.image.load(os.path.join("img", "rock1.png")), pygame.image.load(os.path.join("img", "rock2.png"))],
+        'medium': [pygame.image.load(os.path.join("img", "rock3.png")), pygame.image.load(os.path.join("img", "rock4.png"))],
+        'large': [pygame.image.load(os.path.join("img", "rock5.png")), pygame.image.load(os.path.join("img", "rock6.png"))]
+    }
 
     # Load sounds
     shoot_sound = pygame.mixer.Sound(os.path.join("sound", "shoot.wav"))
@@ -73,9 +79,11 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         surf.blit(text_surface, text_rect)
 
     def new_rock():
-        r = Rock()
+        size_category = random.choice(['tiny', 'small', 'medium', 'large'])  # Randomly choose the size
+        r = Rock(size_category)  # Pass size_category to Rock
         all_sprites.add(r)
         rocks.add(r)
+
 
     def draw_health(surf, hp, x, y):
         if hp < 0:
@@ -271,37 +279,47 @@ def start_game(stage_names, id):  # Accept user_id as an argument
             self.gun_time = pygame.time.get_ticks()
 
     class Rock(pygame.sprite.Sprite):
-        def __init__(self):
-            pygame.sprite.Sprite.__init__(self)
-            self.image_ori = random.choice(rock_imgs)
-            self.image_ori.set_colorkey(BLACK)
-            self.image = self.image_ori.copy()
-            self.rect = self.image.get_rect()
-            self.radius = int(self.rect.width * 0.85 / 2)
-            self.rect.x = random.randrange(0, WIDTH - self.rect.width)
-            self.rect.y = random.randrange(-180, -100)
-            self.speedy = random.randrange(2, 5)
-            self.speedx = random.randrange(-3, 3)
-            self.total_degree = 0
-            self.rot_degree = random.randrange(-3, 3)
+        def __init__(self, size_category):
+            super().__init__()
+            self.size_category = size_category
 
-        def rotate(self):
-            self.total_degree += self.rot_degree
-            self.total_degree = self.total_degree % 360
-            self.image = pygame.transform.rotate(self.image_ori, self.total_degree)
-            center = self.rect.center
+            if size_category == 'tiny':
+                self.image = rock_images['tiny']
+                self.hit_points = 1
+                self.speedy = random.randint(7, 9)
+            elif size_category == 'small':
+                self.image = random.choice(rock_images['small'])
+                self.hit_points = 2
+                self.speedy = random.randint(5, 7)
+            elif size_category == 'medium':
+                self.image = random.choice(rock_images['medium'])
+                self.hit_points = 3
+                self.speedy = random.randint(3, 5)
+            elif size_category == 'large':
+                self.image = random.choice(rock_images['large'])
+                self.hit_points = 5
+                self.speedy = random.randint(1, 3)
+
             self.rect = self.image.get_rect()
-            self.rect.center = center
+            self.rect.x = random.randint(0, WIDTH - self.rect.width)
+            self.rect.y = random.randint(-150, -100)
+            self.speedx = random.randint(-2, 2)
 
         def update(self):
-            self.rotate()
             self.rect.y += self.speedy
             self.rect.x += self.speedx
-            if self.rect.top > HEIGHT or self.rect.left > WIDTH or self.rect.right < 0:
-                self.rect.x = random.randrange(0, WIDTH - self.rect.width)
-                self.rect.y = random.randrange(-100, -40)
-                self.speedy = random.randrange(2, 10)
-                self.speedx = random.randrange(-3, 3)
+
+            # Destroy the rock if it goes off-screen
+            if self.rect.top > HEIGHT:
+                self.kill()
+                new_rock()  # Replace the rock that went off-screen
+            
+        def hit(self):
+            self.hit_points -= 1
+            if self.hit_points <= 0:
+                self.kill()
+                new_rock()  # Replace the rock that was destroyed
+
 
     class Bullet(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -375,7 +393,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
             powers = pygame.sprite.Group()
             player = Player()
             all_sprites.add(player)
-            for i in range(8):
+            for i in range(15):
                 new_rock()
             score = 0
 
@@ -391,18 +409,20 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         # Update game
         all_sprites.update()
 
-        # Check for collisions
-        hits = pygame.sprite.groupcollide(rocks, bullets, True, True)
-        for hit in hits:
-            random.choice(expl_sounds).play()
-            score += hit.radius
-            expl = Explosion(hit.rect.center, 'lg')
-            all_sprites.add(expl)
-            if random.random() > 0.9:
-                pow = Power(hit.rect.center)
-                all_sprites.add(pow)
-                powers.add(pow)
-            new_rock()
+        # Check for collisions between rocks and bullets
+        hits = pygame.sprite.groupcollide(rocks, bullets, False, True)
+        for rock, bullets_hit in hits.items():
+            for bullet in bullets_hit:
+                rock.hit()
+                if rock.hit_points <= 0:
+                    random.choice(expl_sounds).play()
+                    score += int(rock.radius)
+                    expl = Explosion(rock.rect.center, 'lg' if rock.size_category == 'large' else 'sm')
+                    all_sprites.add(expl)
+                    if random.random() > 0.9:
+                        pow = Power(rock.rect.center)
+                        all_sprites.add(pow)
+                        powers.add(pow)
 
         #Check if the score have reach the limit
         if score >= 9999:
@@ -430,26 +450,75 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         hits = pygame.sprite.spritecollide(player, rocks, True, pygame.sprite.collide_circle)
         for hit in hits:
             new_rock()
-            player.health -= hit.radius * 2
-            expl = Explosion(hit.rect.center, 'sm')
-            all_sprites.add(expl)
-
+            
+            # Initial health reduction when hit by meteorite
+            health_loss = 20
+            player.health -= health_loss
+            
+            # Trigger the question
             question_asked, correct_answer = ask_question()
             if question_asked:
                 if not correct_answer:
+                    # Double the health loss if the answer is wrong
+                    player.health -= health_loss * 1.5
+                    
+                # Check if player health is still above zero
+                if player.health <= 0:
                     player.lives -= 1
                     if player.lives > 0:
+                        player.health = 100  # Reset health after losing a life
                         player.hide()
-                    player.health = 100
+                    else:
+                        # Player has lost all lives, trigger game over
+                        if not death_expl:
+                            death_expl = Explosion(player.rect.center, 'player')
+                            all_sprites.add(death_expl)
+                            die_sound.play()
+                            player.hide()
+                            # Insert score into the database
+                            sql = f"UPDATE `score` SET `{stage_names}` = %s WHERE `id` = %s"
+                            values = (score, id)  # Include the id in the values tuple
+                            my_cursor.execute(sql, values)
+                            conn.commit()
+                            print("Score saved to database.")
+                            result = draw_score_page(score)
+                            if result == 'quit':
+                                conn.close()
+                                pygame.quit()
+                                return
+                            elif result == 'restart':
+                                show_init = True
+                                death_expl = None
+                                break
+                else:
+                    # Ensure health is capped at a minimum of 0
+                    player.health = max(player.health, 0)
 
-            if player.health <= 0 and not correct_answer:
-                if not death_expl:  # Check if it's not already created
+            # Check if health drops to 0
+            if player.health <= 0:
+                if not death_expl:  # Prevent the death_expl from being created multiple times
                     death_expl = Explosion(player.rect.center, 'player')
                     all_sprites.add(death_expl)
                     die_sound.play()
                     player.lives -= 1
                     player.health = 100
                     player.hide()
+                    if player.lives <= 0:
+                        # Insert score into the database
+                        sql = f"UPDATE `score` SET `{stage_names}` = %s WHERE `id` = %s"
+                        values = (score, id)
+                        my_cursor.execute(sql, values)
+                        conn.commit()
+                        print("Score saved to database.")
+                        result = draw_score_page(score)
+                        if result == 'quit':
+                            conn.close()
+                            pygame.quit()
+                            return
+                        elif result == 'restart':
+                            show_init = True
+                            death_expl = None
+                            break
 
         hits = pygame.sprite.spritecollide(player, powers, True)
         for hit in hits:

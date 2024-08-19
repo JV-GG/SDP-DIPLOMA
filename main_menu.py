@@ -16,7 +16,7 @@ pygame.mixer.music.set_volume(0.4)
 screen_width = 1920 #1000
 screen_height = 1080 #800
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Counting-Strike')
+pygame.display.set_caption('Counting-Strike')  
 
 # Colors
 white = (255, 255, 255)
@@ -58,7 +58,7 @@ button_image = pygame.transform.scale(button_image_orig, button_image_size)
 login_button_image = pygame.transform.scale(login_button_image, (200, 200))
 register_button_image = pygame.transform.scale(register_button_image, (200, 200))
 
-# Load menu image
+# Load menu image  
 menu_image = pygame.image.load(r'jpg\mainbackground.png').convert_alpha()
 menu_image = pygame.transform.scale(menu_image, (screen_width, screen_height))
 menu_width = menu_image.get_width()
