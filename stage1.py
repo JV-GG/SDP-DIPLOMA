@@ -2,11 +2,13 @@ import pygame
 import random
 import os
 import pymysql
-
+import time
 
 FPS = 60
 WIDTH = 1920
 HEIGHT = 1080
+start_time = time.time()
+TOTAL_SCORE = 10000  # Set the total score required to complete the stage
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -20,6 +22,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         host='localhost',
         user='root',
         password='',
+        port=3307,
         database='sdp'
     )
     my_cursor = conn.cursor()
@@ -79,10 +82,24 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         surf.blit(text_surface, text_rect)
 
     def new_rock():
-        size_category = random.choice(['tiny', 'small', 'medium', 'large'])  # Randomly choose the size
-        r = Rock(size_category)  # Pass size_category to Rock
+        size_category = random.choice(['tiny', 'small', 'medium', 'large'])
+        speed_increase = 1 + (elapsed_time / 30)  # Adjust speed factor based on elapsed time
+        r = Rock(size_category, speed_increase)
         all_sprites.add(r)
         rocks.add(r)
+
+    def draw_progress_bar(surf, score, total_score, x, y, width, height):
+        # Calculate the progress ratio
+        progress_ratio = min(score / total_score, 1)  # Ensure ratio does not exceed 1
+
+        # Draw the progress bar background
+        pygame.draw.rect(surf, (128, 128, 128), (x, y, width, height))
+
+        # Draw the progress based on the player's score
+        pygame.draw.rect(surf, GREEN, (x, y, width * progress_ratio, height))
+
+        # Draw the border
+        pygame.draw.rect(surf, WHITE, (x, y, width, height), 2)
 
 
     def draw_health(surf, hp, x, y):
@@ -93,7 +110,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         fill = (hp / 100) * BAR_LENGTH
         outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
         fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
-        pygame.draw.rect(surf, GREEN, fill_rect)
+        pygame.draw.rect(surf, RED, fill_rect)
         pygame.draw.rect(surf, WHITE, outline_rect, 2)
 
     def draw_lives(surf, lives, img, x, y):
@@ -279,26 +296,26 @@ def start_game(stage_names, id):  # Accept user_id as an argument
             self.gun_time = pygame.time.get_ticks()
 
     class Rock(pygame.sprite.Sprite):
-        def __init__(self, size_category):
+        def __init__(self, size_category, speed_increase=1):
             super().__init__()
             self.size_category = size_category
 
             if size_category == 'tiny':
                 self.image = rock_images['tiny']
                 self.hit_points = 1
-                self.speedy = random.randint(7, 9)
+                self.speedy = random.randint(7, 9) * speed_increase
             elif size_category == 'small':
                 self.image = random.choice(rock_images['small'])
                 self.hit_points = 2
-                self.speedy = random.randint(5, 7)
+                self.speedy = random.randint(5, 7) * speed_increase
             elif size_category == 'medium':
                 self.image = random.choice(rock_images['medium'])
                 self.hit_points = 3
-                self.speedy = random.randint(3, 5)
+                self.speedy = random.randint(3, 5) * speed_increase
             elif size_category == 'large':
                 self.image = random.choice(rock_images['large'])
                 self.hit_points = 5
-                self.speedy = random.randint(1, 3)
+                self.speedy = random.randint(1, 3) * speed_increase
 
             self.rect = self.image.get_rect()
             self.rect.x = random.randint(0, WIDTH - self.rect.width)
@@ -381,7 +398,11 @@ def start_game(stage_names, id):  # Accept user_id as an argument
     show_init = True
     running = True
     death_expl = None  # Initialize the variable here
+
+    # Main game loop
     while running:
+        elapsed_time = time.time() - start_time  # Update elapsed time
+
         if show_init:
             close = draw_init()
             if close:
@@ -424,8 +445,8 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                         all_sprites.add(pow)
                         powers.add(pow)
 
-        #Check if the score have reach the limit
-        if score >= 9999:
+        # Check if the score has reached the limit
+        if score >= TOTAL_SCORE:
             screen.blit(background_img, (0, 0))
             draw_text(screen, "Congratulations! You've reached 9999 points!", 48, WIDTH / 2, HEIGHT / 4)
             draw_text(screen, "Press C to Continue or Q to Return to Homepage", 22, WIDTH / 2, HEIGHT / 2)
@@ -447,6 +468,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                         elif event.key == pygame.K_q:
                             return
 
+        # Handle collisions and other game logic here...
         hits = pygame.sprite.spritecollide(player, rocks, True, pygame.sprite.collide_circle)
         for hit in hits:
             new_rock()
@@ -517,8 +539,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                             return
                         elif result == 'restart':
                             show_init = True
-                            death_expl = None
-                            break
+                            death_expl = None  # Reset death_expl for a new game
 
         hits = pygame.sprite.spritecollide(player, powers, True)
         for hit in hits:
@@ -551,16 +572,25 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                 show_init = True
                 death_expl = None  # Reset death_expl for a new game
 
-            
-
         # Draw/display
         screen.fill(BLACK)
         screen.blit(background_img, (0, 0))
         all_sprites.draw(screen)
         draw_text(screen, str(score), 18, WIDTH / 2, 10)
-        draw_health(screen, player.health, 5, 15)
-        draw_lives(screen, player.lives, player_mini_img, WIDTH - 250, 15)
+        draw_health(screen, player.health, WIDTH - 250, HEIGHT - 40)
+        draw_lives(screen, player.lives, player_mini_img, WIDTH - 250, HEIGHT - 80)
+
+        # Center the progress bar horizontally and place it at the middle vertically
+        progress_bar_width = 1000
+        progress_bar_height = 20
+        progress_bar_x = WIDTH / 2 - progress_bar_width / 2
+        progress_bar_y = HEIGHT / 30  # Adjust this value if you want it higher or lower
+
+        # Draw the progress bar
+        draw_progress_bar(screen, score, TOTAL_SCORE, progress_bar_x, progress_bar_y, progress_bar_width, progress_bar_height)
+
         pygame.display.update()
+
 
     my_cursor.close()
     conn.close()

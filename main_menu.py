@@ -9,8 +9,11 @@ import os
 # Initialize pygame
 pygame.init()
 
-pygame.mixer.music.load(os.path.join("sound", "background.ogg"))
-pygame.mixer.music.set_volume(0.4)
+# Check if music is already playing
+if not pygame.mixer.music.get_busy():
+    pygame.mixer.music.load(os.path.join("sound", "background.ogg"))
+    pygame.mixer.music.set_volume(0.4)
+    pygame.mixer.music.play(-1)  # -1 makes the music loop indefinitely
 
 # Screen dimensions
 screen_width = 1920 #1000
@@ -79,6 +82,7 @@ conn = pymysql.connect(
     host='localhost',
     user='root',
     password='',
+    port=3307,
     database='sdp'
 )
 my_cursor = conn.cursor()
@@ -622,6 +626,7 @@ def get_stage_scores(id):
     host='localhost',
     user='root',
     password='',
+    port=3307,
     database='sdp'
     )
     my_cursor = conn.cursor()
@@ -715,8 +720,6 @@ def stage_select_menu(profile,id):
 
         stage_images.append(img)
 
-    pygame.mixer.music.play(-1)
-
     # Main loop
     running = True
     while running:
@@ -788,6 +791,7 @@ def check_and_update_stage(id):
     host='localhost',
     user='root',
     password='',
+    port=3307,
     database='sdp'
 )
     my_cursor = conn.cursor()
@@ -868,7 +872,6 @@ def stage_select_menu_admin(profile, id):
         img.blit(text_surface, text_rect)
 
         stage_images.append(img)
-        pygame.mixer.music.play(-1)
 
     # Main loop
     running = True
@@ -972,7 +975,6 @@ def admin_stage_menu(profile, id):
     blink = True
     blink_timer = pygame.time.get_ticks()
     blink_interval = 500
-    pygame.mixer.music.play(-1)
 
     while running:
         cursor_over_input = True
@@ -1157,8 +1159,6 @@ def add_questions_to_stage(profile, id, selected_stage):
         questions = list(existing_data[:10])  # Convert to list for mutable operations
         answers = list(existing_data[10:])    # Convert to list for mutable operations
 
-    pygame.mixer.music.play(-1)
-
     running = True
 
     while running: 
@@ -1280,7 +1280,6 @@ def about_us(profile,id):
         "Join us in making math both entertaining and educational!"
     ]
     scroll = 0
-    pygame.mixer.music.play(-1)
 
     # Main loop
     running = True
@@ -1331,7 +1330,6 @@ def start_menu(profile,id):
     running = True
 
     message = ''
-    pygame.mixer.music.play(-1)
 
     while running:
         # Check for events
@@ -1438,7 +1436,6 @@ def start_menu_admin(profile,id):
     running = True
 
     message = ''
-    pygame.mixer.music.play(-1)
 
     while running:
         # Check for events
@@ -1550,8 +1547,6 @@ def forget_password():
     email = ''
     login_message = ''
     scroll = 0
-    
-    pygame.mixer.music.play(-1)
 
     while running:
         clock = pygame.time.Clock()
@@ -1639,7 +1634,6 @@ def main_menu2():
     user = ""
     scroll = 0
     
-    pygame.mixer.music.play(-1)
 
     while running:
         for event in pygame.event.get():
@@ -1722,7 +1716,6 @@ def main_menu():
     scroll = 0
     profile= ''
     
-    pygame.mixer.music.play(-1)
 
     #Main Loop
     while running:
@@ -1959,7 +1952,6 @@ def logo_menu():
     logo_y = screen_height // 2
     logo_speed = 1
     scroll = 0
-    pygame.mixer.music.play(-1)
 
     #Main Loop
     while running:
@@ -2055,7 +2047,6 @@ def profile_management(profile,id):
     message = ''
     cursor_length = 35
     label_spacing = -30
-    pygame.mixer.music.play(-1)
 
     #Main Loop
     while running:
