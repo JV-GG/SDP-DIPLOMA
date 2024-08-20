@@ -82,7 +82,6 @@ conn = pymysql.connect(
     host='localhost',
     user='root',
     password='',
-    port=3307,
     database='sdp'
 )
 my_cursor = conn.cursor()
@@ -626,7 +625,6 @@ def get_stage_scores(id):
     host='localhost',
     user='root',
     password='',
-    port=3307,
     database='sdp'
     )
     my_cursor = conn.cursor()
@@ -791,7 +789,6 @@ def check_and_update_stage(id):
     host='localhost',
     user='root',
     password='',
-    port=3307,
     database='sdp'
 )
     my_cursor = conn.cursor()
