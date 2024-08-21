@@ -83,7 +83,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
 
     def new_rock():
         size_category = random.choice(['tiny', 'small', 'medium', 'large'])
-        speed_increase = 1 + (elapsed_time / 30)  # Adjust speed factor based on elapsed time
+        speed_increase = 1 + (elapsed_time / 120)  # Adjust speed factor based on elapsed time
         r = Rock(size_category, speed_increase)
         all_sprites.add(r)
         rocks.add(r)
@@ -512,7 +512,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
             if question_asked:
                 if not correct_answer:
                     # Double the health loss if the answer is wrong
-                    player.health -= health_loss * 1.5
+                    player.health -= health_loss * 1.2
                     
                 # Check if player health is still above zero
                 if player.health <= 0:
