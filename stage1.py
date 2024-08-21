@@ -8,7 +8,7 @@ FPS = 60
 WIDTH = 1920
 HEIGHT = 1080
 start_time = time.time()
-TOTAL_SCORE = 10000  # Set the total score required to complete the stage
+TOTAL_SCORE = 10000 
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -16,8 +16,7 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
-def start_game(stage_names, id):  # Accept user_id as an argument
-    # Database connection
+def start_game(stage_names, id): 
     conn = pymysql.connect(
         host='localhost',
         user='root',
@@ -26,14 +25,12 @@ def start_game(stage_names, id):  # Accept user_id as an argument
     )
     my_cursor = conn.cursor()
 
-    # Initialize the game and create window
     pygame.init()
     pygame.mixer.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Counting Strike")
     clock = pygame.time.Clock()
 
-    # Load images
     background_img = pygame.image.load(os.path.join("img", "background.jpeg")).convert()
     player_img = pygame.image.load(os.path.join("img", "player.png")).convert()
     player_mini_img = pygame.transform.scale(player_img, (25, 19))
@@ -61,7 +58,6 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         'large': [pygame.image.load(os.path.join("img", "rock5.png")), pygame.image.load(os.path.join("img", "rock6.png"))]
     }
 
-    # Load sounds
     shoot_sound = pygame.mixer.Sound(os.path.join("sound", "shoot.wav"))
     gun_sound = pygame.mixer.Sound(os.path.join("sound", "pow1.wav"))
     shield_sound = pygame.mixer.Sound(os.path.join("sound", "pow0.wav"))
@@ -83,22 +79,18 @@ def start_game(stage_names, id):  # Accept user_id as an argument
 
     def new_rock():
         size_category = random.choice(['tiny', 'small', 'medium', 'large'])
-        speed_increase = 1 + (elapsed_time / 120)  # Adjust speed factor based on elapsed time
+        speed_increase = 1 + (elapsed_time / 120)  
         r = Rock(size_category, speed_increase)
         all_sprites.add(r)
         rocks.add(r)
 
     def draw_progress_bar(surf, score, total_score, x, y, width, height):
-        # Calculate the progress ratio
-        progress_ratio = min(score / total_score, 1)  # Ensure ratio does not exceed 1
+        progress_ratio = min(score / total_score, 1)  
 
-        # Draw the progress bar background
         pygame.draw.rect(surf, (128, 128, 128), (x, y, width, height))
 
-        # Draw the progress based on the player's score
         pygame.draw.rect(surf, GREEN, (x, y, width * progress_ratio, height))
 
-        # Draw the border
         pygame.draw.rect(surf, WHITE, (x, y, width, height), 2)
 
 
@@ -161,7 +153,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         
         draw_text(screen, question, 24, WIDTH / 2, HEIGHT / 2 - 50)
         
-        input_box = pygame.Rect(WIDTH / 2 - 100, HEIGHT / 2, 200, 32)  # Define the text box area
+        input_box = pygame.Rect(WIDTH / 2 - 100, HEIGHT / 2, 200, 32)  
         color_inactive = pygame.Color('lightskyblue3')
         color_active = pygame.Color('dodgerblue2')
         color = color_inactive
@@ -177,7 +169,6 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                     pygame.quit()
                     return False, ""
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    # If the user clicks on the input_box, activate it.
                     if input_box.collidepoint(event.pos):
                         active = not active
                     else:
@@ -195,7 +186,6 @@ def start_game(stage_names, id):  # Accept user_id as an argument
             screen.blit(background_img, (0, 0))
             draw_text(screen, question, 24, WIDTH / 2, HEIGHT / 2 - 50)
 
-            # Render the current text.
             txt_surface = pygame.font.Font(None, 24).render(user_answer, True, color)
             width = max(200, txt_surface.get_width() + 10)
             input_box.w = width
@@ -207,7 +197,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         if not user_answer.lower().strip() == answer.lower().strip():
             draw_text(screen, "Wrong!, The Correct Answer is " + answer, 24, WIDTH / 2, HEIGHT / 2 + 50, RED)
             pygame.display.update()
-            pygame.time.wait(2000)  # Wait for 2 seconds to display the error message
+            pygame.time.wait(2000) 
 
         return True, user_answer.lower().strip() == answer.lower().strip()
 
@@ -216,10 +206,8 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         while running:
             screen.blit(background_img, (0, 0))
 
-            # Draw the prompt text
             draw_text(screen, 'Quit the Game?', 74, screen.get_width() // 2, screen.get_height() // 3, BLACK)
 
-            # Draw the Yes and No options and get their rects
             yes_button_rect = draw_text(screen, 'Yes', 50, screen.get_width() // 3, screen.get_height() // 2, GREEN)
             no_button_rect = draw_text(screen, 'No', 50, 2 * screen.get_width() // 3, screen.get_height() // 2, RED)
 
@@ -227,16 +215,16 @@ def start_game(stage_names, id):  # Accept user_id as an argument
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return True  # Simulate quitting the game, return True
+                    return True  
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
 
                     if yes_button_rect.collidepoint(mouse_pos):
-                        return True  # Yes is clicked, return True to simulate quitting
+                        return True 
 
                     if no_button_rect.collidepoint(mouse_pos):
-                        return False  # No is clicked, return False to continue the game
+                        return False  
     
     def draw_score_page(score):
         screen.blit(background_img, (0, 0))
@@ -353,16 +341,15 @@ def start_game(stage_names, id):  # Accept user_id as an argument
             self.rect.y += self.speedy
             self.rect.x += self.speedx
 
-            # Destroy the rock if it goes off-screen
             if self.rect.top > HEIGHT:
                 self.kill()
-                new_rock()  # Replace the rock that went off-screen
+                new_rock()  
             
         def hit(self):
             self.hit_points -= 1
             if self.hit_points <= 0:
                 self.kill()
-                new_rock()  # Replace the rock that was destroyed
+                new_rock() 
 
 
     class Bullet(pygame.sprite.Sprite):
@@ -421,14 +408,12 @@ def start_game(stage_names, id):  # Accept user_id as an argument
 
     pygame.mixer.music.play(-1)
 
-    # Main game loop
     show_init = True
     running = True
-    death_expl = None  # Initialize the variable here
+    death_expl = None  
 
-    # Main game loop
     while running:
-        elapsed_time = time.time() - start_time  # Update elapsed time
+        elapsed_time = time.time() - start_time  
 
         if show_init:
             close = draw_init()
@@ -446,7 +431,6 @@ def start_game(stage_names, id):  # Accept user_id as an argument
             score = 0
 
         clock.tick(FPS)
-        # Get input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -457,10 +441,8 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                     if escape_message():
                         return
 
-        # Update game
         all_sprites.update()
 
-        # Check for collisions between rocks and bullets
         hits = pygame.sprite.groupcollide(rocks, bullets, False, True)
         for rock, bullets_hit in hits.items():
             for bullet in bullets_hit:
@@ -475,7 +457,6 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                         all_sprites.add(pow)
                         powers.add(pow)
 
-        # Check if the score has reached the limit
         if score >= TOTAL_SCORE:
             screen.blit(background_img, (0, 0))
             draw_text(screen, "Congratulations! You've reached 9999 points!", 48, WIDTH / 2, HEIGHT / 4)
@@ -493,43 +474,36 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                     elif event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_c:
                             show_init = True
-                            death_expl = None  # Reset death_expl for a new game
+                            death_expl = None 
                             waiting = False
                         elif event.key == pygame.K_q:
                             return
 
-        # Handle collisions and other game logic here...
         hits = pygame.sprite.spritecollide(player, rocks, True, pygame.sprite.collide_circle)
         for hit in hits:
             new_rock()
             
-            # Initial health reduction when hit by meteorite
             health_loss = 20
             player.health -= health_loss
             
-            # Trigger the question
             question_asked, correct_answer = ask_question()
             if question_asked:
                 if not correct_answer:
-                    # Double the health loss if the answer is wrong
                     player.health -= health_loss * 1.2
                     
-                # Check if player health is still above zero
                 if player.health <= 0:
                     player.lives -= 1
                     if player.lives > 0:
-                        player.health = 100  # Reset health after losing a life
+                        player.health = 100  
                         player.hide()
                     else:
-                        # Player has lost all lives, trigger game over
                         if not death_expl:
                             death_expl = Explosion(player.rect.center, 'player')
                             all_sprites.add(death_expl)
                             die_sound.play()
                             player.hide()
-                            # Insert score into the database
                             sql = f"UPDATE `score` SET `{stage_names}` = %s WHERE `id` = %s"
-                            values = (score, id)  # Include the id in the values tuple
+                            values = (score, id)  
                             my_cursor.execute(sql, values)
                             conn.commit()
                             print("Score saved to database.")
@@ -542,12 +516,10 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                                 death_expl = None
                                 break
                 else:
-                    # Ensure health is capped at a minimum of 0
                     player.health = max(player.health, 0)
 
-            # Check if health drops to 0
             if player.health <= 0:
-                if not death_expl:  # Prevent the death_expl from being created multiple times
+                if not death_expl:  
                     death_expl = Explosion(player.rect.center, 'player')
                     all_sprites.add(death_expl)
                     die_sound.play()
@@ -555,7 +527,6 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                     player.health = 100
                     player.hide()
                     if player.lives <= 0:
-                        # Insert score into the database
                         sql = f"UPDATE `score` SET `{stage_names}` = %s WHERE `id` = %s"
                         values = (score, id)
                         my_cursor.execute(sql, values)
@@ -568,7 +539,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                             return
                         elif result == 'restart':
                             show_init = True
-                            death_expl = None  # Reset death_expl for a new game
+                            death_expl = None  
 
         hits = pygame.sprite.spritecollide(player, powers, True)
         for hit in hits:
@@ -584,9 +555,8 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         if player.lives == 0 and not (death_expl and death_expl.alive()):
             result = draw_score_page(score)
 
-            # Insert score into the database
             sql = f"UPDATE `score` SET `{stage_names}` = %s WHERE `id` = %s"
-            values = (score, id)  # Include the id in the values tuple
+            values = (score, id) 
             
             my_cursor.execute(sql, values)
             conn.commit()
@@ -594,14 +564,12 @@ def start_game(stage_names, id):  # Accept user_id as an argument
             
 
             if result == 'quit':
-                # Close the connection
                 conn.close()
                 return
             elif result == 'restart':
                 show_init = True
-                death_expl = None  # Reset death_expl for a new game
+                death_expl = None 
 
-        # Draw/display
         screen.fill(BLACK)
         screen.blit(background_img, (0, 0))
         all_sprites.draw(screen)
@@ -609,13 +577,11 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         draw_health(screen, player.health, WIDTH - 250, HEIGHT - 40)
         draw_lives(screen, player.lives, player_mini_img, WIDTH - 250, HEIGHT - 80)
 
-        # Center the progress bar horizontally and place it at the middle vertically
         progress_bar_width = 1000
         progress_bar_height = 20
         progress_bar_x = WIDTH / 2 - progress_bar_width / 2
-        progress_bar_y = HEIGHT / 30  # Adjust this value if you want it higher or lower
+        progress_bar_y = HEIGHT / 30 
 
-        # Draw the progress bar
         draw_progress_bar(screen, score, TOTAL_SCORE, progress_bar_x, progress_bar_y, progress_bar_width, progress_bar_height)
 
         pygame.display.update()
