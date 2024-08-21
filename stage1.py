@@ -22,7 +22,6 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         host='localhost',
         user='root',
         password='',
-        port=3307,
         database='sdp'
     )
     my_cursor = conn.cursor()
@@ -80,6 +79,7 @@ def start_game(stage_names, id):  # Accept user_id as an argument
         text_rect.centerx = x
         text_rect.top = y
         surf.blit(text_surface, text_rect)
+        return text_rect
 
     def new_rock():
         size_category = random.choice(['tiny', 'small', 'medium', 'large'])
@@ -211,6 +211,33 @@ def start_game(stage_names, id):  # Accept user_id as an argument
 
         return True, user_answer.lower().strip() == answer.lower().strip()
 
+    def escape_message():
+        running = True
+        while running:
+            screen.blit(background_img, (0, 0))
+
+            # Draw the prompt text
+            draw_text(screen, 'Quit the Game?', 74, screen.get_width() // 2, screen.get_height() // 3, BLACK)
+
+            # Draw the Yes and No options and get their rects
+            yes_button_rect = draw_text(screen, 'Yes', 50, screen.get_width() // 3, screen.get_height() // 2, GREEN)
+            no_button_rect = draw_text(screen, 'No', 50, 2 * screen.get_width() // 3, screen.get_height() // 2, RED)
+
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return True  # Simulate quitting the game, return True
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+
+                    if yes_button_rect.collidepoint(mouse_pos):
+                        return True  # Yes is clicked, return True to simulate quitting
+
+                    if no_button_rect.collidepoint(mouse_pos):
+                        return False  # No is clicked, return False to continue the game
+    
     def draw_score_page(score):
         screen.blit(background_img, (0, 0))
         draw_text(screen, f'Score: {score}', 48, WIDTH / 2, HEIGHT / 4)
@@ -426,6 +453,9 @@ def start_game(stage_names, id):  # Accept user_id as an argument
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     player.shoot()
+                elif event.key == pygame.K_ESCAPE:
+                    if escape_message():
+                        return
 
         # Update game
         all_sprites.update()
@@ -506,7 +536,6 @@ def start_game(stage_names, id):  # Accept user_id as an argument
                             result = draw_score_page(score)
                             if result == 'quit':
                                 conn.close()
-                                pygame.quit()
                                 return
                             elif result == 'restart':
                                 show_init = True
